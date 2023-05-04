@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routes import ROUTES
+import os
+import uvicorn
+
 
 app = FastAPI()
 
@@ -24,5 +27,7 @@ async def health_check():
 	return {"message": "OK"}
 
 if __name__ == "__main__":
-	import uvicorn
-	uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+	if os.getenv("ENV") == "prod":
+		uvicorn.run("app:app", host="0.0.0.0", port=80, reload=False, workers=4)
+	elif os.getenv("ENV", "dev") == "dev":
+		uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

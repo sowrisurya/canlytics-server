@@ -1,0 +1,10 @@
+mongoengine
+fastapi
+uvicorn
+requests
+pyyaml
+AWSIoTPythonSDK
+python-multipart
+cantools
+influxdb
+boto3

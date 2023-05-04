@@ -1,0 +1,24 @@
+database:
+  name: "erework"
+  user: null
+  password: null
+  host: "localhost"
+  port: 27017
+  auth_database: null
+
+mqtt:
+  host: "at7b0wc73v3jy-ats.iot.eu-central-1.amazonaws.com"
+  port: 8883 
+  client_id: "windows-pc"
+  in_topic: "aws/things/simcom7600_device01/"
+  out_topic: "aws/things/simcom7600_device01/"
+  topic: "aws/things/simcom7600_device01/"
+  root_ca: "data/root-CA.crt"
+  private_key: "data/windows-pc.private.key"
+  certificate: "data/windows-pc.cert.pem"
+
+influx:
+  host: "http://localhost:8086"
+  database: "vehicleDiagnostic"
+  org: "pdsl"
+  token: "U5Sd8ntikeGuLHZj6ExMrmGNycB5LbTFzZNUX2Fqfz1ipg6xnZzQNrU43XE8yYmM4H7oSH70gq6LyLE4r9Cy9Q=="

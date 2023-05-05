@@ -18,7 +18,7 @@ client = InfluxClient()
 client.write(
     measurement=f"simcom_client01",
     tags = {}, 
-    fields={
+    fields = {
 		"raw_data": "somedata",
 		"success": "true",
 		"check": "f190",

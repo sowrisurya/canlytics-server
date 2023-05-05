@@ -59,13 +59,13 @@ class DataController:
 				tags = {},
 				fields = {
 					"raw_data": raw_data,
-					"success": success_message,
+					"success": str(success_message),
 					"check": check_msg,
 					"input_data": self.__inpt_data,
 					# "did": json_message.get("did"),
 					"decoded_data": decoded_data,
 					"diag_name": self.__diag_name,
-					"frame_id": self.__frame_id,
+					"frame_id": str(self.__frame_id),
 				}
 			)
 		except Exception as e:

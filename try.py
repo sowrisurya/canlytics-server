@@ -8,13 +8,14 @@ from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
 from utils.influxClient import InfluxClient
 import time
+from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
-VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")
+# VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")
 
 # VehicleDbcController.get_vehicle_vin_chipid("SBM16AEB8NW000245")
-
-client = InfluxClient()
-client.delete_all()
+vehicle_logs_schedule.apply()
+# client = InfluxClient()
+# client.delete_all()
 # client.write(
 #     measurement=f"simcom_client01",
 #     tags = {}, 

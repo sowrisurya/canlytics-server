@@ -10,6 +10,7 @@ from schemas import (
 import pandas as pd
 from subscribers.dataAdder import DataController
 
+
 class VehicleLogsController:
 
 	@staticmethod
@@ -95,9 +96,10 @@ class VehicleLogsController:
 
 		for did in dids_list:
 			data_controller = DataController(
-				frame_id=did.frame_id, 
+				frame_id = did.frame_id,
 				inpt_data_hex = did.hex_data.ljust(16, "0"),
-				callback=callback
+				callback = callback,
+				max_clients = len(vehicle_ids),
 			)
 			data_controller.configure()
 			data_controller.publish()

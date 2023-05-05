@@ -9,3 +9,5 @@ cantools
 influxdb-client
 boto3
 pandas
+celery
+redis

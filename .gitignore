@@ -1,3 +1,6 @@
 .venv
 *.pyc
 **/__pycache__/*
+celerybeat-schedule.bak
+celerybeat-schedule.dir
+celerybeat-schedule.dat

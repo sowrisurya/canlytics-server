@@ -51,7 +51,7 @@ class VehicleDbcController:
 			return None
 
 	@staticmethod
-	def get_vehicle_vin_chipid(vehicle_id):
+	async def get_vehicle_vin_chipid(vehicle_id):
 		try:
 			vehicle : Vehicle = Vehicle.objects(vin = vehicle_id).first()
 			if not vehicle:
@@ -75,8 +75,7 @@ class VehicleDbcController:
 			dbc_proto = DataController(frame_id = 1971, inpt_data_hex = "22F190", callback = callback)
 			dbc_proto.configure()
 			dbc_proto.publish()
-			dbc_proto.wait_for_data(timeout = 100)
-
+			await dbc_proto.wait_for_data_async(timeout = 100)
 			return vehicle.chipId
 			### End of prototype
 		except Exception as e:

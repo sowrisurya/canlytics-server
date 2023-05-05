@@ -19,12 +19,21 @@ class SelectedDIDVehicle(mongoengine.EmbeddedDocument):
 # 	vehicle_status = mongoengine.BooleanField(default = False)
 # 	dbc_file = mongoengine.EmbeddedDocumentField(FileFields)
 # 	dids_list = mongoengine.EmbeddedDocumentListField(SelectedDIDVehicle)
+class VehicleMake(mongoengine.DynamicDocument):
+	meta = {"collection": "makes"}
+
 class VehicleModel(mongoengine.DynamicDocument):
 	meta = {"collection": "models"}
 
 class Vehicle(mongoengine.DynamicDocument):
 	model = mongoengine.ReferenceField(VehicleModel, required = True)
+	make = mongoengine.ReferenceField(VehicleMake, required = True)
 	meta = {"collection": "vehicles"}
+
+class GPSCoord(mongoengine.EmbeddedDocument):
+	lat = mongoengine.FloatField(required = True)
+	lng = mongoengine.FloatField(required = True)
+	requested_at = mongoengine.DateTimeField(required = True)
 
 class VehicleDBCDids(mongoengine.Document):
 	vehicle = mongoengine.ReferenceField(Vehicle, required = True)
@@ -32,4 +41,6 @@ class VehicleDBCDids(mongoengine.Document):
 	device_id = mongoengine.StringField(required = True, unique = True)
 	# dbc_file = mongoengine.EmbeddedDocumentField(FileFields)
 	dids_list = mongoengine.EmbeddedDocumentListField(SelectedDIDVehicle)
+	gps = mongoengine.EmbeddedDocumentField(GPSCoord)
+	current_status = mongoengine.StringField(default = "offline")
 	# vin_decode = mongoengine.EmbeddedDocumentField(SelectedDIDVehicle)

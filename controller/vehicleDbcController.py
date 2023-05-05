@@ -66,13 +66,13 @@ class VehicleDbcController:
 				vehicle_dbc.save()
 
 			### Specifically for the prototype
-			def callback(device_id: str, decoded_data: str, success: bool):
+			def callback(device_id: str, decoded_data: str, success: bool, **kwargs):
 				if success:
 					vehicle_dbc.device_id = device_id
 					vehicle_dbc.save()
 					vehicle.chipId = device_id
 					vehicle.save()
-			dbc_proto = DataController(frame_id = 1971, inpt_data_hex = "22F190", callback = callback)
+			dbc_proto = DataController(frame_id = 1971, inpt_data_hex = "22F190", callback = callback, max_clients=VehicleDBCDids.objects.count())
 			dbc_proto.configure()
 			dbc_proto.publish()
 			await dbc_proto.wait_for_data_async(timeout = 100)

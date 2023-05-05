@@ -6,14 +6,20 @@
 # a.wait_for_data(timeout=100)
 from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
-from utils.influxClient import InfluxClient
-import time
-from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
+# from utils.influxClient import InfluxClient
+# import time
+from subscribers.statusGetter import StatusGetter
+
+getter = StatusGetter()
+getter.configure()
+getter.publish_gps()
+getter.wait()
+# from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
 # VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")
 
 # VehicleDbcController.get_vehicle_vin_chipid("SBM16AEB8NW000245")
-vehicle_logs_schedule.apply()
+# vehicle_logs_schedule.apply()
 # client = InfluxClient()
 # client.delete_all()
 # client.write(

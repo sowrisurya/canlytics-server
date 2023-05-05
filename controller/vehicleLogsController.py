@@ -95,16 +95,20 @@ class VehicleLogsController:
 				})
 
 		for did in dids_list:
-			data_controller = DataController(
-				frame_id = did.frame_id,
-				inpt_data_hex = did.hex_data.ljust(16, "0"),
-				callback = callback,
-				max_clients = len(vehicle_ids),
-			)
-			data_controller.configure()
-			data_controller.publish()
-			await data_controller.wait_for_data_async(timeout=timeout)
-			data_controller.kill()
+			try:
+				data_controller = DataController(
+					frame_id = did.frame_id,
+					inpt_data_hex = did.hex_data.ljust(16, "0"),
+					callback = callback,
+					max_clients = len(vehicle_ids),
+				)
+				data_controller.configure()
+				data_controller.publish()
+				await data_controller.wait_for_data_async(timeout=timeout)
+				data_controller.kill()
+			except Exception as e:
+				print(e)
+				pass
 
 		return [
 			{

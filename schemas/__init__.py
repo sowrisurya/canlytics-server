@@ -12,3 +12,6 @@ from schemas.vehicleLogsObject import (
 from schemas.common import (
     ResponseSchema
 )
+from schemas.vehicleObject import (
+    VehicleObject,
+)

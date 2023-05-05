@@ -111,7 +111,7 @@ class VehicleLogsController:
 				"input_data": item["input_data"],
 				"decoded_data": item["decoded_data"],
 				"diag_name": item["diag_name"],
-				"vin": vehicle_logs_data[item["device_id"]]["vehicle_id"],
+				"vin": vehicle_logs_data[device_id]["vehicle_id"],
 				"frame_id": 0,
 			}
 			for device_id in vehicle_logs_data

@@ -14,17 +14,17 @@ VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")
 # VehicleDbcController.get_vehicle_vin_chipid("SBM16AEB8NW000245")
 
 client = InfluxClient()
-# client.delete_all()
-client.write(
-    measurement=f"simcom_client01",
-    tags = {}, 
-    fields = {
-		"raw_data": "somedata",
-		"success": "true",
-		"check": "f190",
-		"input_data": "22F190",
-		# "did": json_message.get("did"),
-		"decoded_data": "SBM16AEB8NW000245",
-        "diag_name": "VehicleVINNumber",
-	}
-)
+client.delete_all()
+# client.write(
+#     measurement=f"simcom_client01",
+#     tags = {}, 
+#     fields = {
+# 		"raw_data": "somedata",
+# 		"success": "true",
+# 		"check": "f190",
+# 		"input_data": "22F190",
+# 		# "did": json_message.get("did"),
+# 		"decoded_data": "SBM16AEB8NW000245",
+#         "diag_name": "VehicleVINNumber",
+# 	}
+# )

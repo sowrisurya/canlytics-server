@@ -13,7 +13,7 @@ celery_app = celery.Celery(
 celery_app.conf.beat_schedule = {
     'schedule_logs': {
         'task': 'backgroundTasks.vehicle_logs_schedule',
-        'schedule': 30.0,
+        'schedule': 1800.0,
     },
     'schedule_gps_status': {
         'task': 'backgroundTasks.gps_status_schedule',

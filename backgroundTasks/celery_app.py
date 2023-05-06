@@ -15,5 +15,9 @@ celery_app.conf.beat_schedule = {
         'task': 'backgroundTasks.vehicle_logs_schedule',
         'schedule': 30.0,
     },
+    'schedule_gps_status': {
+        'task': 'backgroundTasks.gps_status_schedule',
+        'schedule': 300.0,
+    },
 }
 celery_app.conf.timezone = 'UTC'

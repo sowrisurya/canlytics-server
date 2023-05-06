@@ -2,7 +2,7 @@ from utils import INFLUX_CLIENT, REDIS_CLIENT
 from typing import Callable
 from utils.mqttClient import MQTTClient
 from utils.consts import MQTT_TOPIC
-from models import VehicleDBCDids
+from models import VehicleDBCDids, GPSCoord
 import json, datetime, asyncio, time
 import logging
 
@@ -22,15 +22,35 @@ class StatusGetter:
 
 	@staticmethod
 	def handle_status_message(device_id, status):
-		vehicle_status = VehicleDBCDids.objects(device_id = device_id).first()
-		if vehicle_status is None:
-			return
-		vehicle_status.current_status = status
-		logger.info(f"Device ID: {device_id}, Status: {status}")
+		try:
+			vehicle_status = VehicleDBCDids.objects(device_id = device_id).first()
+			if vehicle_status is None:
+				return
+			vehicle_status.current_status = status
+			vehicle_status.save()
+			# print(f"Device ID: {device_id}, Status: {status}")
+		except Exception as e:
+			print(e)
+		# logger.info(f"Device ID: {device_id}, Status: {status}")
 
 	@staticmethod
-	def handle_gps_message(deivce_id, gps_msg):
-		logger.info(f"Device ID: {deivce_id}, GPS: {gps_msg}")
+	def handle_gps_message(device_id, gps_msg):
+		try:
+
+			lat, long = [ float(_.split(":")[1]) for _ in gps_msg.split(",")]
+			vehicle_status = VehicleDBCDids.objects(device_id = device_id).first()
+			if vehicle_status is None:
+				return
+			vehicle_status.gps = GPSCoord(
+				lat = lat,
+				lng = long,
+				requested_at = datetime.datetime.now()
+			)
+			vehicle_status.save()
+		except Exception as e:
+			print(e)
+			return
+		# logger.info(f"Device ID: {device_id}, GPS: {gps_msg}")
 
 	@staticmethod
 	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True):
@@ -104,8 +124,7 @@ class StatusGetter:
 		# 	)
 
 	@staticmethod
-	def status_diagonostic_callback(client, userdata, message):
-		data : str = message.payload.decode("utf-8").lower()
+	def status_diagonostic_callback(crnt_msg, data):
 		logger.info(f"Received data: {data}")
 		if data.startswith("server>") or "|" not in data:
 			return	
@@ -114,11 +133,12 @@ class StatusGetter:
 		# logger.info(f"Current clients: {self.__crnt_clients}")
 		if data.startswith("gps-client_id"):
 			device_id, gps_msg = data.split("|")
-			device_id = device_id.lstrip("gps-client_id:")
+			print(f"Device ID: {device_id}, GPS: {gps_msg}")
+			device_id = device_id.replace("gps-client_id:", "")
 			StatusGetter.handle_gps_message(device_id, gps_msg)
 		elif data.startswith("status-client_id"):
 			device_id, status = data.split("|")
-			device_id = device_id.lstrip("status-client_id:")
+			device_id = device_id.replace("status-client_id:", "")
 			status = status.lstrip("vehicle is ")
 			StatusGetter.handle_status_message(device_id, status)
 		# if self.__crnt_clients == 0:

@@ -5,4 +5,5 @@ from models.vehcileDbcModel import (
     SelectedDIDVehicle, 
     VehicleDBCDids, 
     VehicleModel,
+    GPSCoord,
 )

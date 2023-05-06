@@ -9,11 +9,12 @@ from controller.vehicleLogsController import VehicleLogsController
 # from utils.influxClient import InfluxClient
 import time, asyncio
 from subscribers.statusGetter import StatusGetter
-from backgroundTasks import vehicle_logs_schedule
+from backgroundTasks import vehicle_logs_schedule, gps_status_schedule
+
 event_loop = asyncio.get_event_loop()
 
 async def main():
-    vehicle_logs_schedule.apply()
+    gps_status_schedule.apply()
 	# getter = StatusGetter()
 	# getter.configure()
 

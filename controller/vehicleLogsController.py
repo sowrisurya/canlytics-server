@@ -1,4 +1,4 @@
-from utils.influxClient import InfluxClient
+from utils import InfluxClient, REDIS_CLIENT
 import datetime
 from models import (
 	Vehicle,
@@ -8,7 +8,9 @@ from schemas import (
 	VehicleLogsObject,
 )
 import pandas as pd
-from subscribers.dataAdder import DataController
+import asyncio, json, time
+from backgroundTasks.vehicleLogsTask import wait_for_data_async
+from subscribers import StatusGetter
 
 
 class VehicleLogsController:
@@ -27,7 +29,6 @@ class VehicleLogsController:
 			num = num // 24
 		if num > 0:
 			flux_range_time = f"{int(num)}d" + flux_range_time
-		
 		return flux_range_time
 
 	@staticmethod
@@ -71,7 +72,7 @@ class VehicleLogsController:
 			return None
 
 	@staticmethod
-	async def get_live_logs(vehicle_ids, dids_list, timeout = 10):
+	async def get_live_logs(vehicle_ids, dids_list, timeout = 100):
 		vehicle_logs_data = {
 			vehicle_dbc.device_id: {
 				"vehicle_id": vehicle_id,
@@ -82,33 +83,29 @@ class VehicleLogsController:
 			if (vehicle_dbc := VehicleDBCDids.objects(vehicle = vehicle).first())
 		}
 
-		def callback(device_id: str, raw_data: str, input_data: str, decoded_data: str, success: bool, diag_name: str, frame_id: int, **kwargs):
-			if success:
+		def callback(crnt_msg, data):
+			log_data = StatusGetter.diagonostic_callback(crnt_msg, data, add_to_influx=False)
+			if log_data["success"] == "True":
+				device_id = log_data["device_id"]
 				vehicle_logs_data[device_id]["logs"].append({
 					"time": datetime.datetime.utcnow(),
-					"raw_data": raw_data,
-					"input_data": input_data,
-					"decoded_data": decoded_data,
-					"diag_name": diag_name,
+					"raw_data": log_data["raw_data"],
+					"input_data": log_data["input_data"],
+					"decoded_data": log_data["decoded_data"],
+					"diag_name": log_data["diag_name"],
 					"vin": vehicle_logs_data[device_id]["vehicle_id"],
-					"frame_id": frame_id,
+					"frame_id": int(log_data["frame_id"]),
 				})
 
+		event_loop = asyncio.get_event_loop()
+		task = event_loop.create_task(wait_for_data_async(callback = callback))
 		for did in dids_list:
 			try:
-				data_controller = DataController(
-					frame_id = did.frame_id,
-					inpt_data_hex = did.hex_data.ljust(16, "0"),
-					callback = callback,
-					max_clients = len(vehicle_ids),
-				)
-				data_controller.configure()
-				data_controller.publish()
-				await data_controller.wait_for_data_async(timeout=timeout)
-				data_controller.kill()
+				StatusGetter.publish(diag_name=did.diag_name, frame_id=did.frame_id, inpt_data_hex=did.hex_data)
 			except Exception as e:
 				print(e)
 				pass
+		await task
 
 		return [
 			{
@@ -118,7 +115,7 @@ class VehicleLogsController:
 				"decoded_data": item["decoded_data"],
 				"diag_name": item["diag_name"],
 				"vin": vehicle_logs_data[device_id]["vehicle_id"],
-				"frame_id": 0,
+				"frame_id": item["frame_id"],
 			}
 			for device_id in vehicle_logs_data
 			for item in vehicle_logs_data[device_id]["logs"]

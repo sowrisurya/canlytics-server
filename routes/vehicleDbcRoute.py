@@ -62,7 +62,7 @@ vehicleDbcRouter = APIRouter(
 # 	raise HTTPException(status_code=404, detail="No vehicleDbc found")
 
 # Get Model DIDs
-@vehicleDbcRouter.get("/dids/{vehicle}", response_model=VehicleModelDIDs)
+@vehicleDbcRouter.get("/dids/{vehicle}/", response_model=VehicleModelDIDs)
 async def get_vehicle_dids(vehicle_id: str):
 	modelDids = VehicleDbcController.get_vehicle_dids(vehicle_id)
 	if modelDids:
@@ -70,7 +70,7 @@ async def get_vehicle_dids(vehicle_id: str):
 	raise HTTPException(status_code=404, detail="No modelDids found or no DIDs found")
 
 # Add Update Vehicle DID
-@vehicleDbcRouter.post("/dids", response_model=List[VehicleModelDIDs])
+@vehicleDbcRouter.post("/dids/", response_model=List[VehicleModelDIDs])
 async def add_update_vehicles_dids(vehicle_ids: List[str], didsList: List[VehicleDID]):
 	return [
 		VehicleDbcController.add_update_vehicle_dids(
@@ -82,7 +82,7 @@ async def add_update_vehicles_dids(vehicle_ids: List[str], didsList: List[Vehicl
 	# raise HTTPException(status_code=404, detail="No vehicleDbc found")
 
 # Update Vehicle ChipID
-@vehicleDbcRouter.put("/chipid/{vehicle_id}", response_model=ResponseSchema)
+@vehicleDbcRouter.put("/chipid/{vehicle_id}/", response_model=ResponseSchema)
 async def update_vehicle_chipid(vehicle_id: str):
 	chip_id = await VehicleDbcController.get_vehicle_vin_chipid(vehicle_id)
 	if chip_id:

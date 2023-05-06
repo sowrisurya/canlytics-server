@@ -1,40 +1,65 @@
 from models import VehicleDBCDids
-from subscribers.dataAdder import DataController
+from subscribers import StatusGetter
 from backgroundTasks.celery_app import celery_app
-import logging
+import logging, time, asyncio, json
+from utils import REDIS_CLIENT
 
 logger = logging.getLogger(__name__)
 # from controller.
 
+def wait_for_data(callback, timeout = 15):
+	subscriber = REDIS_CLIENT.pubsub()
+	subscriber.subscribe("dataAdderSubscribe")
+
+	st = time.time()
+	while time.time() - st < timeout:
+		msg = subscriber.get_message(ignore_subscribe_messages=True, timeout=1)
+		if msg:
+			data = json.loads(msg["data"].decode("utf-8"))
+			callback(data["crnt_msg"], data["data"])
+		else:
+			time.sleep(1)
+
+async def wait_for_data_async(callback, timeout = 15):
+	subscriber = REDIS_CLIENT.pubsub()
+	subscriber.subscribe("dataAdderSubscribe")
+
+	st = time.time()
+	while time.time() - st < timeout:
+		msg = subscriber.get_message(ignore_subscribe_messages=True, timeout=1)
+		if msg:
+			data = json.loads(msg["data"].decode("utf-8"))
+			callback(data["crnt_msg"], data["data"])
+		else:
+			await asyncio.sleep(1)
+
+
 @celery_app.task(name = "backgroundTasks.vehicle_logs_schedule")
 def vehicle_logs_schedule():
 	logger.info("vehicle_logs_schedule started")
-	def callback(device_id: str, raw_data: str, input_data: str, decoded_data: str, success: bool, diag_name: str, frame_id: int, **kwargs):
-		if success:
 
-			logger.info(f"device_id: {device_id}, raw_data: {raw_data}, input_data: {input_data}, decoded_data: {decoded_data}, diag_name: {diag_name}, frame_id: {frame_id}")
-			# vehicle_logs_data[device_id]["logs"].append({
-			# 	"time": datetime.datetime.utcnow(),
-			# 	"raw_data": raw_data,
-			# 	"input_data": input_data,
-			# 	"decoded_data": decoded_data,
-			# 	"diag_name": diag_name,
-			# 	"vin": vehicle_logs_data[device_id]["vehicle_id"],
-			# 	"frame_id": frame_id,
-			# })
-	total_vehicle_count = VehicleDBCDids.objects().count()
 	for vehicle_dbc in VehicleDBCDids.objects():
 		for did in vehicle_dbc.dids_list:
-			controller = DataController(
-				frame_id = did.frame_id,
-				inpt_data_hex = did.hex_data,
-				diag_name = did.diag_name,
-				max_clients = total_vehicle_count,
-				callback = callback
-			)
-			controller.configure()
-			controller.publish()
-			controller.wait_for_data(timeout=10)
-			controller.kill()
+			logger.info(f"publishing {did.diag_name}")
+			StatusGetter.publish(diag_name=did.diag_name, frame_id=did.frame_id, inpt_data_hex=did.hex_data)
+
+	wait_for_data(callback = StatusGetter.diagonostic_callback)
+
+	logger.info("done")
+	return True
+
+
+@celery_app.task(name = "backgroundTasks.gps_status_schedule")
+def gps_status_schedule():
+	logger.info("gps_status_schedule started")
+
+	
+	for vehicle_dbc in VehicleDBCDids.objects():
+		for did in vehicle_dbc.dids_list:
+			logger.info(f"publishing {did.diag_name}")
+			StatusGetter.publish(diag_name=did.diag_name, frame_id=did.frame_id, inpt_data_hex=did.hex_data)
+
+	wait_for_data(callback=StatusGetter.status_diagonostic_callback)
+
 	logger.info("done")
 	return True

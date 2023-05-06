@@ -7,13 +7,20 @@
 from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
 # from utils.influxClient import InfluxClient
-# import time
+import time, asyncio
 from subscribers.statusGetter import StatusGetter
+from backgroundTasks import vehicle_logs_schedule
+event_loop = asyncio.get_event_loop()
 
-getter = StatusGetter()
-getter.configure()
-getter.publish_gps()
-getter.wait()
+async def main():
+    vehicle_logs_schedule.apply()
+	# getter = StatusGetter()
+	# getter.configure()
+
+	# await getter.publish_vehicle_status()
+	# await getter.publish_gps()
+	# await getter.wait()
+event_loop.run_until_complete(main())
 # from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
 # VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")

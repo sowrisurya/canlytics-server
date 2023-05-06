@@ -1,16 +1,11 @@
 from models import (
 	SelectedDIDVehicle,
 	Vehicle,
-	FileFields,
 	VehicleDBCDids,
-	VehicleModel,
 )
 from controller.dbcController import DBCDecoder
-from bson import DBRef, ObjectId
-from uuid import uuid4
-import random, string
+import random, string, asyncio
 from subscribers import DataController
-
 
 class VehicleDbcController:
 
@@ -65,8 +60,12 @@ class VehicleDbcController:
 				)
 				vehicle_dbc.save()
 
+			callback_called = False
+
 			### Specifically for the prototype
 			def callback(device_id: str, decoded_data: str, success: bool, **kwargs):
+				nonlocal callback_called
+				callback_called = True
 				if success:
 					vehicle_dbc.device_id = device_id
 					vehicle_dbc.save()
@@ -75,7 +74,10 @@ class VehicleDbcController:
 			dbc_proto = DataController(frame_id = 1971, inpt_data_hex = "22F190", callback = callback, max_clients=VehicleDBCDids.objects.count())
 			dbc_proto.configure()
 			dbc_proto.publish()
-			await dbc_proto.wait_for_data_async(timeout = 100)
+			await dbc_proto.wait_for_data_async(timeout = 10)
+			if not callback_called:
+				loop = asyncio.get_event_loop()
+				loop.create_task(VehicleDbcController.get_vehicle_vin_chipid(vehicle_id))
 			return vehicle.chipId
 			### End of prototype
 		except Exception as e:

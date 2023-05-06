@@ -29,8 +29,6 @@ class DataController:
 
 	def __vehicle_diagnostic_callback(self, client, userdata, message):
 		data : str = message.payload.decode("utf-8").lower()
-		print(f"Received data: {data}")
-
 		if data.startswith("server>") and not data.startswith("client_id:") and "|" not in data:
 			return
 		print(f"Received data: {data}")

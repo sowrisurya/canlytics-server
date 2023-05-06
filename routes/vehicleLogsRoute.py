@@ -23,7 +23,7 @@ async def get_all_vehicleLogs(vehicle_id: str, limit: int = 100, start_time: dat
 
 @vehicleLogsRouter.post("/live-logs", response_model=List[VehicleLogsObject])
 async def get_live_logs(vehicle_ids: List[str], didsList: List[VehicleDID], timeout: int = 100):
-	vehicleLogs = await  VehicleLogsController.get_live_logs(vehicle_ids = vehicle_ids, dids_list = didsList)
+	vehicleLogs = await  VehicleLogsController.get_live_logs(vehicle_ids = vehicle_ids, dids_list = didsList, timeout=timeout)
 	if vehicleLogs:
 		return vehicleLogs
 	raise HTTPException(status_code=404, detail="No vehicleLogs found")

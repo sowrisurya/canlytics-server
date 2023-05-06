@@ -49,3 +49,5 @@ class InfluxClient:
 	
 	def queryV1(self, query):
 		return self.__read_api.query_raw(org=self.__org, query=query)
+
+INFLUX_CLIENT = InfluxClient()

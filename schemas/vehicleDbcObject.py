@@ -14,11 +14,18 @@ from pydantic import BaseModel, Field, validator
 # 	# dbc_file: Optional[str] = None
 
 class VehicleDID(BaseModel):
-	diag_name: str = Form(..., example = "diag_name")
-	frame_id: int = Form(..., example = "frame_id")
-	start_bit: int = Form(..., example = "start_bit")
-	hex_data: Optional[str] = None
+	diag_name: str = Field(..., example = "diag_name")
+	frame_id: int = Field(..., example = "frame_id")
+	start_bit: int = Field(..., example = "start_bit")
+	hex_data: Optional[str] = Field("22F190", example = "hex_data")
 	# did: Optional[str] = None
+
+	class Config:
+		validate_assignment = True
+
+	@validator('hex_data')
+	def set_hex_data(cls, hex_data):
+		return hex_data or '22F190'
 
 class VehicleModelDIDs(BaseModel):
 	model_id: str = Form(..., example = "model_id")

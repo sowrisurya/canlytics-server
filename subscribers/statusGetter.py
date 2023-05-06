@@ -4,6 +4,9 @@ from utils.mqttClient import MQTTClient
 from utils.consts import MQTT_TOPIC
 from models import VehicleDBCDids
 import json, datetime, asyncio, time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class StatusGetter:
 	# def __init__(self, max_clients = 1):
@@ -23,11 +26,11 @@ class StatusGetter:
 		if vehicle_status is None:
 			return
 		vehicle_status.current_status = status
-		print(f"Device ID: {device_id}, Status: {status}")
+		logger.info(f"Device ID: {device_id}, Status: {status}")
 
 	@staticmethod
 	def handle_gps_message(deivce_id, gps_msg):
-		print(f"Device ID: {deivce_id}, GPS: {gps_msg}")
+		logger.info(f"Device ID: {deivce_id}, GPS: {gps_msg}")
 
 	@staticmethod
 	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True):
@@ -46,7 +49,7 @@ class StatusGetter:
 		# frame_id = "1971"
 		# diag_name = "DiagName"
 		success_message = hex_data[:2] == "62"
-		print(crnt_msg)
+		logger.info(crnt_msg)
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
@@ -60,12 +63,12 @@ class StatusGetter:
 			raw_data = raw_data[:-1]
 		decoded_data = bytes.fromhex(raw_data).decode()
 		decoded_data = decoded_data.replace("\x00", "")
-		print("Device ID: ", device_id, end=", ")
-		print("Success: ", success_message, end=", ")
-		print("Check: ", check_msg, end=", ")
-		print("Data: ", raw_data, end=", ")
-		print("Decoded: ", decoded_data, end=" ")
-		print("--------------\n\n")
+		logger.info("Device ID: ", device_id, end=", ")
+		logger.info("Success: ", success_message, end=", ")
+		logger.info("Check: ", check_msg, end=", ")
+		logger.info("Data: ", raw_data, end=", ")
+		logger.info("Decoded: ", decoded_data, end=" ")
+		logger.info("--------------\n\n")
 		
 		log_data = {
 			"raw_data": raw_data,
@@ -85,7 +88,7 @@ class StatusGetter:
 					fields = log_data
 				)
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 		finally:
 			log_data["device_id"] = device_id
 			return log_data
@@ -103,12 +106,12 @@ class StatusGetter:
 	@staticmethod
 	def status_diagonostic_callback(client, userdata, message):
 		data : str = message.payload.decode("utf-8").lower()
-		print(f"Received data: {data}")
+		logger.info(f"Received data: {data}")
 		if data.startswith("server>") or "|" not in data:
 			return	
 		if data.startswith("client_id:"):
 			return
-		# print(f"Current clients: {self.__crnt_clients}")
+		# logger.info(f"Current clients: {self.__crnt_clients}")
 		if data.startswith("gps-client_id"):
 			device_id, gps_msg = data.split("|")
 			device_id = device_id.lstrip("gps-client_id:")
@@ -127,10 +130,10 @@ class StatusGetter:
 	# 	self.__running = True
 
 	# async def wait_for_messages_received(self):
-	# 	print("Waiting for messages to be received")
+	# 	logger.info("Waiting for messages to be received")
 	# 	while not self.__messages_received:
 	# 		await asyncio.sleep(1)
-	# 	print("Messages received")
+	# 	logger.info("Messages received")
 
 	# async def publish_gps(self):
 	# 	await self.wait_for_messages_received()

@@ -6,6 +6,9 @@ from utils.consts import (
 	MQTT_PRIVATE_KEY,
 	MQTT_CERTIFICATE
 )
+import logging
+
+logger = logging.getLogger(__name__)
 
 class MQTTClient(object):
 	def __new__(cls):
@@ -34,7 +37,7 @@ class MQTTClient(object):
 		self.__client.subscribe(topic, 1, callback)
 
 	def publish(self, topic, message) -> bool:
-		print(f"Publishing message: {message} to topic: {topic}")
+		logger.info(f"Publishing message: {message} to topic: {topic}")
 		return self.__client.publish(topic, message, 1)
 	
 	def unsubscribe(self, topic):

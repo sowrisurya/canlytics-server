@@ -3,6 +3,9 @@ from typing import Callable
 from utils.mqttClient import MQTTClient
 from utils.consts import MQTT_TOPIC
 import json, datetime, asyncio, time
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DataController:
 	def __init__(self, frame_id: int, inpt_data_hex: str, diag_name: str = "", max_clients: int = 1, callback : Callable = None) -> None:
@@ -31,7 +34,7 @@ class DataController:
 		data : str = message.payload.decode("utf-8").lower()
 		if data.startswith("server>") and not data.startswith("client_id:") and "|" not in data:
 			return
-		print(f"Received data: {data}")
+		logger.info(f"Received data: {data}")
 		device_id, hex_data = data.split("|")
 		device_id = device_id.lstrip("client_id:")
 		hex_data = hex_data.replace(" ", "")
@@ -45,12 +48,8 @@ class DataController:
 			raw_data = raw_data[:-1]
 		decoded_data = bytes.fromhex(raw_data).decode()
 		decoded_data = decoded_data.replace("\x00", "")
-		print("Device ID: ", device_id, end=", ")
-		print("Success: ", success_message, end=", ")
-		print("Check: ", check_msg, end=", ")
-		print("Data: ", raw_data, end=", ")
-		print("Decoded: ", decoded_data, end=" ")
-		print("--------------\n\n")
+		log_msg = f"Device ID: {device_id}, Success: {success_message}, Check: {check_msg}, Data: {raw_data}, Decoded: {decoded_data}"
+		logger.info(log_msg)
 		try:
 			self.__influx_client.write(
 				measurement = device_id, 
@@ -67,7 +66,7 @@ class DataController:
 				}
 			)
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 		if self.__callback:
 			self.__callback(
 				device_id = device_id, 
@@ -94,7 +93,7 @@ class DataController:
 		data_hex = self.__inpt_data.ljust(16, '0')
 		data_hex = " ".join(data_hex[i:i+2] for i in range(0, len(data_hex), 2))
 		pub_message = "SERVER>{} {}<".format(frame_id_hex, data_hex)
-		print(f"Publishing: {pub_message}")
+		logger.info(f"Publishing: {pub_message}")
 		self.__mqtt_client.publish(MQTT_TOPIC, pub_message)
 
 	def kill(self):

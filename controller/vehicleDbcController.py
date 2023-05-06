@@ -6,6 +6,9 @@ from models import (
 from controller.dbcController import DBCDecoder
 import random, string, asyncio
 from subscribers import DataController
+import logging
+
+logger = logging.getLogger(__name__)
 
 class VehicleDbcController:
 
@@ -42,7 +45,7 @@ class VehicleDbcController:
 				}
 			return None
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None
 
 	@staticmethod
@@ -81,7 +84,7 @@ class VehicleDbcController:
 			return vehicle.chipId
 			### End of prototype
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None
 
 	@staticmethod
@@ -132,7 +135,7 @@ class VehicleDbcController:
 				}
 			return None
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None
 
 	@staticmethod
@@ -150,5 +153,5 @@ class VehicleDbcController:
 			)
 			return decoded_data
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None

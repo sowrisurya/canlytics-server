@@ -11,6 +11,9 @@ import pandas as pd
 import asyncio, json, time
 from backgroundTasks.vehicleLogsTask import wait_for_data_async
 from subscribers import StatusGetter
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class VehicleLogsController:
@@ -68,7 +71,7 @@ class VehicleLogsController:
 						for item in data
 					] if data else None
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None
 
 	@staticmethod
@@ -103,7 +106,7 @@ class VehicleLogsController:
 			try:
 				StatusGetter.publish(diag_name=did.diag_name, frame_id=did.frame_id, inpt_data_hex=did.hex_data)
 			except Exception as e:
-				print(e)
+				logger.error(f"Error: {e}")
 				pass
 		await task
 

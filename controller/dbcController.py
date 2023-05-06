@@ -2,6 +2,9 @@ import cantools, os
 from mongoengine import GridFSProxy
 from models import Vehicle
 from io import StringIO
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DBCDecoder:
 	def __init__(self, file_path = None, file = None):
@@ -23,7 +26,7 @@ class DBCDecoder:
 		try:
 			return self.__dbc.get_message_by_frame_id(message_id)
 		except Exception as e:
-			print(e)
+			logger.error(f"Error: {e}")
 			return None
 
 	def get_frame_signals(self, message_id):

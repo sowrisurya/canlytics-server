@@ -23,6 +23,7 @@ class VehicleController:
 				"lng": vehicle_dbc.gps.lng,
 				"requested_at": vehicle_dbc.gps.requested_at,
 				"vin": vehicle_dbc.vehicle.vin,
+				"status": vehicle_dbc.current_status if vehicle_dbc else "offline",
 			}
 			for vehicle_dbc in VehicleDBCDids.objects().skip((page - 1) * num_items).limit(num_items)
 			if vehicle_dbc.gps

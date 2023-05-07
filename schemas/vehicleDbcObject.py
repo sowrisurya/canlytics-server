@@ -15,7 +15,7 @@ from pydantic import BaseModel, Field, validator
 
 class VehicleDID(BaseModel):
 	diag_name: str = Field(..., example = "diag_name")
-	frame_id: int = Field(..., example = "frame_id")
+	frame_id: Union[int, str] = Field(..., example = "frame_id")
 	start_bit: int = Field(..., example = "start_bit")
 	hex_data: Optional[str] = Field("22F190", example = "hex_data")
 	# did: Optional[str] = None
@@ -26,6 +26,13 @@ class VehicleDID(BaseModel):
 	@validator('hex_data')
 	def set_hex_data(cls, hex_data):
 		return hex_data or '22F190'
+
+	@validator('frame_id')
+	def set_frame_id(cls, frame_id):
+		if isinstance(frame_id, str):
+			return int(frame_id, 16)
+		elif isinstance(frame_id, int):
+			return hex(frame_id)[2:]
 
 class VehicleModelDIDs(BaseModel):
 	model_id: str = Form(..., example = "model_id")

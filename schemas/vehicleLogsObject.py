@@ -8,8 +8,15 @@ class VehicleLogsObject(BaseModel):
 	raw_data: str = Field(..., example = "raw_data")
 	# did: str = Field(..., example = "did")
 	diag_name: Optional[str] = Field("DiagName", example = "diag_name")
-	frame_id: Optional[int] = Field(0, example = "frame_id")
+	frame_id: Union[int, str] = Field(..., example = "frame_id")
 	# start_bit: int = Field(..., example = "start_bit")
 	vin: Optional[str] = Field("vin", example = "vin")
 	decoded_data: str = Field(..., example = "decoded_data")
 	input_data: str = Field(..., example = "input_data")
+
+	class Config:
+		validate_assignment = True
+
+	@validator('frame_id')
+	def set_frame_id(cls, frame_id):
+		return hex(frame_id)[2:] if isinstance(frame_id, int) else frame_id

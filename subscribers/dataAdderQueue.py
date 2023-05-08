@@ -1,6 +1,7 @@
 from utils import MQTTClient
 import time, json, asyncio
 from utils import MQTT_TOPIC, REDIS_CLIENT
+import threading
 
 
 class DataAdderQueue(object):
@@ -21,7 +22,7 @@ class DataAdderQueue(object):
 				if not str(data["data"]).startswith("server>"):
 					continue
 				self.__crnt_msg = data
-				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
+				MQTTClient.publish(MQTT_TOPIC, data["data"])
 				self.wait_for_mqtt_msg(timeout = 30)
 				time.sleep(2)
 			else:
@@ -35,7 +36,7 @@ class DataAdderQueue(object):
 				if not str(data["data"]).startswith("server>"):
 					continue
 				self.__crnt_msg = data
-				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
+				MQTTClient.publish(MQTT_TOPIC, data["data"])
 				await self.wait_for_mqtt_msg(testing = False, timeout = 30)
 				await asyncio.sleep(2)
 			else:
@@ -55,7 +56,8 @@ class DataAdderQueue(object):
 
 	def recv_data_callback(self, message):
 		try:
-			data = message.payload.decode("utf-8")
+			# data = message.payload.decode("utf-8")
+			data = message["payload"]
 		except Exception as e:
 			data = message
 		if data is None or not isinstance(data, str):
@@ -69,4 +71,13 @@ class DataAdderQueue(object):
 			self.__crnt_msg = None
 
 	def configure(self):
-		self.__mqtt_client.subscribe(MQTT_TOPIC)
+		def run_loop():
+			while True:
+				try:
+					self.__mqtt_client.subscribe(MQTT_TOPIC)
+				except Exception as e:
+					print("Error in subscribing to topic: {}".format(e))
+					time.sleep(1)
+		thrd = threading.Thread(target=run_loop, daemon=True, name="mqtt-subscriber")
+		thrd.start()
+		return thrd

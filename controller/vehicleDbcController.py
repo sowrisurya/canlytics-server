@@ -6,7 +6,9 @@ from models import (
 from controller.dbcController import DBCDecoder
 import random, string, asyncio
 from subscribers import DataController
+from subscribers import StatusGetter
 import logging
+from backgroundTasks.vehicleLogsTask import wait_for_data_async
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +51,7 @@ class VehicleDbcController:
 			return None
 
 	@staticmethod
-	async def get_vehicle_vin_chipid(vehicle_id):
+	async def get_vehicle_vin_chipid(vehicle_id, frame_id, input_data_hex):
 		try:
 			vehicle : Vehicle = Vehicle.objects(vin = vehicle_id).first()
 			if not vehicle:
@@ -63,24 +65,23 @@ class VehicleDbcController:
 				)
 				vehicle_dbc.save()
 
-			callback_called = False
+			def callback(crnt_msg, data):
+				log_data = StatusGetter.diagonostic_callback(crnt_msg, data, add_to_influx=False)
+				if log_data and isinstance(log_data, dict):
+					if log_data.get("diag_name", None) == "VehicleVIN":
+						vehicle.chipId = log_data.get("device_id", None)
+						vehicle.save()
+						vehicle_dbc.device_id = log_data.get("device_id", None)
+						vehicle_dbc.save()
 
-			### Specifically for the prototype
-			def callback(device_id: str, decoded_data: str, success: bool, **kwargs):
-				nonlocal callback_called
-				callback_called = True
-				if success:
-					vehicle_dbc.device_id = device_id
-					vehicle_dbc.save()
-					vehicle.chipId = device_id
-					vehicle.save()
-			dbc_proto = DataController(frame_id = 1971, inpt_data_hex = "22F190", callback = callback, max_clients=VehicleDBCDids.objects.count())
-			dbc_proto.configure()
-			dbc_proto.publish()
-			await dbc_proto.wait_for_data_async(timeout = 10)
-			if not callback_called:
-				loop = asyncio.get_event_loop()
-				loop.create_task(VehicleDbcController.get_vehicle_vin_chipid(vehicle_id))
+			event_loop = asyncio.get_event_loop()
+			task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = 60))
+			try:
+				StatusGetter.publish(diag_name = "VehicleVIN", frame_id = frame_id, inpt_data_hex = input_data_hex)
+			except Exception as e:
+				logger.error(f"Error: {e}")
+			await task
+
 			return vehicle.chipId
 			### End of prototype
 		except Exception as e:

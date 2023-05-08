@@ -42,5 +42,5 @@ class VehicleDBCDids(mongoengine.Document):
 	# dbc_file = mongoengine.EmbeddedDocumentField(FileFields)
 	dids_list = mongoengine.EmbeddedDocumentListField(SelectedDIDVehicle)
 	gps = mongoengine.EmbeddedDocumentField(GPSCoord)
-	current_status = mongoengine.StringField(default = "offline")
+	current_status = mongoengine.StringField(default = "off")
 	# vin_decode = mongoengine.EmbeddedDocumentField(SelectedDIDVehicle)

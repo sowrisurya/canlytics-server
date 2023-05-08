@@ -7,21 +7,36 @@
 from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
 # from utils.influxClient import InfluxClient
-import time, asyncio
+import time, asyncio, json
 from subscribers.statusGetter import StatusGetter
+from subscribers.dataAdderQueue import DataAdderQueue
+from utils.mqttClient import MQTTClient
 from backgroundTasks import vehicle_logs_schedule, gps_status_schedule
 
-event_loop = asyncio.get_event_loop()
+queue = DataAdderQueue()
+queue.configure()
+queue.wait_for_messages()
 
-async def main():
-    gps_status_schedule.apply()
+# topic_name = "aws/things/simcom7600_device01/"
+# topic_name = "test/topic"
+# mqtt_client = MQTTClient()
+# mqtt_client.subscribe(topic = topic_name)
+# mqtt_client.publish(topic = topic_name, message = "server>7c4 22 f1 90<")
+# mqtt_client.wait()
+# while True:
+# 	time.sleep(1)
+
+# event_loop = asyncio.get_event_loop()
+
+# async def main():
+#     gps_status_schedule.apply()
 	# getter = StatusGetter()
 	# getter.configure()
 
 	# await getter.publish_vehicle_status()
 	# await getter.publish_gps()
 	# await getter.wait()
-event_loop.run_until_complete(main())
+# event_loop.run_until_complete(main())
 # from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
 # VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")

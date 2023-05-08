@@ -1,10 +1,17 @@
 from utils import MQTTClient
 import time, json, asyncio
 from utils import MQTT_TOPIC, REDIS_CLIENT
+import logging
+
+fh = logging.FileHandler('dataAdderQueue.log')
+fh.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+fh.setFormatter(formatter)
+logger = logging.getLogger(__name__)
 
 class DataAdderQueue(object):
 	def __init__(self):
-		self.__mqtt_client = MQTTClient()
+		self.__mqtt_client = MQTTClient(callback=self.recv_data_callback)
 		self.__subscriber = REDIS_CLIENT.pubsub()
 		self.__subscriber.subscribe("dataAdderPublish")
 		self.__crnt_msg = None
@@ -55,14 +62,16 @@ class DataAdderQueue(object):
 		while self.__crnt_msg is not None and time.time() - start_time < timeout:
 			asyncio.sleep(0.1)
 		if testing:
-			self.recv_data_callback(None, None, testing_message)
+			self.recv_data_callback(testing_message)
 
-	def recv_data_callback(self, client, userdata, message):
-		# data = message
-		try:
-			data = message.payload.decode("utf-8")
-		except Exception as e:
-			data = message
+	def recv_data_callback(self, message):
+	# def recv_data_callback(self, client, userdata, message):
+		data = message
+		# try:
+		# 	data = message.payload.decode("utf-8")
+		# except Exception as e:
+		# 	data = message
+		logger.debug("Received: " + data)
 		print("Received: " + data)
 		if data is None or not isinstance(data, str):
 			return
@@ -79,6 +88,6 @@ class DataAdderQueue(object):
 
 
 	def configure(self):
-		self.__mqtt_client.subscribe(MQTT_TOPIC, self.recv_data_callback)
+		self.__mqtt_client.subscribe(MQTT_TOPIC)
 
 # DATA_ADDER_QUEUE = DataAdderQueue()

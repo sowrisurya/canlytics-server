@@ -3,7 +3,8 @@ fastapi
 uvicorn
 requests
 pyyaml
-AWSIoTPythonSDK
+# AWSIoTPythonSDK
+awsiotsdk
 python-multipart
 cantools
 influxdb-client

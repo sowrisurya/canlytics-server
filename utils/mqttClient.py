@@ -33,13 +33,19 @@ class MQTTClient(object):
 	def client(self):
 		return self.__client
 	
-	def subscribe(self, topic, callback):
-		self.__client.subscribe(topic, 1, callback)
+	def ackCallback(self, mid, data):
+		print("Received ack for message: " + str(mid) + " data: " + str(data))
+	
+	def subscribe(self, topic, callback, async_subscribe = False):
+		if async_subscribe:
+			self.__client.subscribeAsync(topic, QoS = 1, ackCallback = self.ackCallback, messageCallback = callback)
+		else:
+			self.__client.subscribe(topic, QoS = 1, callback = callback)
 
 	def publish(self, topic, message) -> bool:
 		logger.info(f"Publishing message: {message} to topic: {topic}")
 		return self.__client.publish(topic, message, 1)
-	
+
 	def unsubscribe(self, topic):
 		self.__client.unsubscribe(topic)
 

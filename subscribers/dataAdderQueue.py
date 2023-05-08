@@ -1,5 +1,5 @@
 from utils import MQTTClient
-import time, json
+import time, json, asyncio
 from utils import MQTT_TOPIC, REDIS_CLIENT
 
 class DataAdderQueue(object):
@@ -12,7 +12,6 @@ class DataAdderQueue(object):
 
 	# def add_data(self, data):
 	# 	REDIS_QUEUE.enqueue(self.__mqtt_client.publish, MQTT_TOPIC, data)
-
 	def wait_for_messages(self):
 		while True:
 			msg = self.__subscriber.get_message(ignore_subscribe_messages=True)
@@ -22,10 +21,25 @@ class DataAdderQueue(object):
 					continue
 				self.__crnt_msg = data
 				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
-				self.wait_for_mqtt_msg(testing = False)
+				# await self.wait_for_mqtt_msg(testing = False, timeout = 30)
 				time.sleep(2)
 			else:
 				time.sleep(0.1)
+
+	async def wait_for_messages_async(self):
+		while True:
+			msg = self.__subscriber.get_message(ignore_subscribe_messages=True)
+			if msg is not None:
+				data = json.loads(msg["data"].decode("utf-8"))
+				if not str(data["data"]).startswith("server>"):
+					continue
+				self.__crnt_msg = data
+				print("Publishing: " + data["data"] + " to " + MQTT_TOPIC + " topic")
+				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
+				# await self.wait_for_mqtt_msg(testing = False, timeout = 30)
+				await asyncio.sleep(2)
+			else:
+				await asyncio.sleep(0.1)
 		# for msg in self.__subscriber.listen():
 		# 	if msg is not None and msg["type"] == "message":
 		# while True:
@@ -36,10 +50,10 @@ class DataAdderQueue(object):
 		# 	else:
 		# 		time.sleep(0.1)
 
-	def wait_for_mqtt_msg(self, timeout = 10, testing = True, testing_message = "client_id:simcom_client01|62 F1 90 53 42 4D 31 36 41 45 42 38 4E 57 30 30 30 32 34 35"):
+	async def wait_for_mqtt_msg(self, timeout = 10, testing = True, testing_message = "client_id:simcom_client01|62 F1 90 53 42 4D 31 36 41 45 42 38 4E 57 30 30 30 32 34 35"):
 		start_time = time.time()
 		while self.__crnt_msg is not None and time.time() - start_time < timeout:
-			time.sleep(0.1)
+			asyncio.sleep(0.1)
 		if testing:
 			self.recv_data_callback(None, None, testing_message)
 
@@ -49,12 +63,14 @@ class DataAdderQueue(object):
 			data = message.payload.decode("utf-8")
 		except Exception as e:
 			data = message
+		print("Received: " + data)
 		if data is None or not isinstance(data, str):
 			return
 		if data.startswith("server>"):
 			return
 		else:
 			data = data.lower()
+			print("Publishing: " + data + " to dataAdderSubscribe topic")
 			crnt_msg = self.__crnt_msg
 			REDIS_CLIENT.publish("dataAdderSubscribe", json.dumps({"crnt_msg": crnt_msg, "data": data}))
 			self.__crnt_msg = None

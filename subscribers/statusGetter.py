@@ -133,8 +133,8 @@ class StatusGetter:
 		# logger.info(f"Current clients: {self.__crnt_clients}")
 		if data.startswith("gps-client_id"):
 			device_id, gps_msg = data.split("|")
-			print(f"Device ID: {device_id}, GPS: {gps_msg}")
 			device_id = device_id.replace("gps-client_id:", "")
+			print(f"Device ID: {device_id}, GPS: {gps_msg}")
 			StatusGetter.handle_gps_message(device_id, gps_msg)
 		elif data.startswith("status-client_id"):
 			device_id, status = data.split("|")

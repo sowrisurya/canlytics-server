@@ -14,9 +14,6 @@ from utils.mqttClient import MQTTClient
 from backgroundTasks import vehicle_logs_schedule, gps_status_schedule
 import asyncio
 
-client = MQTTClient()
-# client.publish(topic = "aws/things/simcom7600_device01/", message = "server>7c4 22 f1 90<")
-client.subscribe(topic = "aws/things/simcom7600_device01/")
 # async def main():
 # 	await VehicleDbcController.get_vehicle_vin_chipid("SALEA7BU1L2000179", frame_id=1988, input_data_hex="22F190")
 
@@ -35,25 +32,26 @@ client.subscribe(topic = "aws/things/simcom7600_device01/")
 # while True:
 # 	time.sleep(1)
 
-# event_loop = asyncio.get_event_loop()
+event_loop = asyncio.get_event_loop()
 
-# async def main():
-#     gps_status_schedule.apply()
+async def main():
+	vehicle_logs_schedule.apply()
+    
+    # gps_status_schedule.apply()
 	# getter = StatusGetter()
 	# getter.configure()
 
 	# await getter.publish_vehicle_status()
 	# await getter.publish_gps()
 	# await getter.wait()
-# event_loop.run_until_complete(main())
+event_loop.run_until_complete(main())
 # from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
 # VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")
 
 # VehicleDbcController.get_vehicle_vin_chipid("SBM16AEB8NW000245")
-# vehicle_logs_schedule.apply()
-client = InfluxClient()
-client.delete_all()
+# client = InfluxClient()
+# client.delete_all()
 # client.write(
 #     measurement=f"simcom_client01",
 #     tags = {}, 

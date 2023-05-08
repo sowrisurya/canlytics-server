@@ -65,6 +65,7 @@ class VehicleLogsController:
 							}
 						)
 						if (log_measure.update({"time": list(table)[0]["_time"]})) or True
+						if (log_measure.update({"vin": vehicle_id})) or True
 					]
 					return [
 						VehicleLogsObject(**item)
@@ -85,6 +86,7 @@ class VehicleLogsController:
 			if (vehicle := Vehicle.objects(vin = vehicle_id).first())
 			if (vehicle_dbc := VehicleDBCDids.objects(vehicle = vehicle).first())
 		}
+		all_msgs_received = asyncio.Event()
 
 		def callback(crnt_msg, data):
 			log_data = StatusGetter.diagonostic_callback(crnt_msg, data, add_to_influx=False)
@@ -99,6 +101,9 @@ class VehicleLogsController:
 					"vin": vehicle_logs_data[device_id]["vehicle_id"],
 					"frame_id": int(log_data["frame_id"]),
 				})
+				if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
+					all_msgs_received.set()
+
 
 		event_loop = asyncio.get_event_loop()
 		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout))
@@ -108,7 +113,7 @@ class VehicleLogsController:
 			except Exception as e:
 				logger.error(f"Error: {e}")
 				pass
-		await task
+		await all_msgs_received.wait()
 
 		return [
 			{

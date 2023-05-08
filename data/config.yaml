@@ -9,14 +9,17 @@ database:
 mqtt:
   host: "at7b0wc73v3jy-ats.iot.eu-central-1.amazonaws.com"
   port: 8883 
-  client_id: "windows-pc"
+  client_id: "windows-pc-2"
   in_topic: "aws/things/simcom7600_device01/"
   out_topic: "aws/things/simcom7600_device01/"
-  topic: "test/topic"
-  # topic: "aws/things/simcom7600_device01/"
-  root_ca: "data/root-CA.crt"
-  private_key: "data/windows-pc.private.key"
-  certificate: "data/windows-pc.cert.pem"
+  # topic: "test/topic"
+  topic: "aws/things/simcom7600_device01/"
+  root_ca: "data/AmazonRootCA1.pem"
+  private_key: "data/windows-pc-2-private.pem.key"
+  certificate: "data/windows-pc-2-certificate.pem.crt"
+  # root_ca: "data/root-CA.crt"
+  # private_key: "data/windows-pc.private.key"
+  # certificate: "data/windows-pc.cert.pem"
 
 influx:
   host: "http://localhost:8086"

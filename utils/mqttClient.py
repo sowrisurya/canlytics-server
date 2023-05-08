@@ -108,7 +108,7 @@ class MQTTClient(object):
 
 	def subscribe(self, topic):
 		proc_params = [
-			"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "mqtt-cli",
+			"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "mqtt",
 			"sub",
 			"-h",
 			MQTT_HOST,

@@ -108,7 +108,7 @@ class MQTTClient(object):
 
 	def subscribe(self, topic):
 		proc_params = [
-			"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "mqtt",
+			"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
 			"sub",
 			"-h",
 			MQTT_HOST,
@@ -135,7 +135,7 @@ class MQTTClient(object):
 			stderr = subprocess.STDOUT,
 			universal_newlines = True,
 			cwd = os.getcwd(),
-			shell = True
+			shell = False
 		) as proc:
 			start_adding = False
 			output = ""
@@ -173,7 +173,7 @@ class MQTTClient(object):
 	def publish(topic, message) -> bool:
 		# print(f"Publishing to topic: {topic} message: {message}")
 		proc_params = [
-			"D:\\Projects\\pdsl\\canlytics\\mqtt-cli.exe" if sys.platform == "win32" else "mqtt-cli",
+			"D:\\Projects\\pdsl\\canlytics\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
 			"pub",
 			"-h",
 			MQTT_HOST,
@@ -193,7 +193,7 @@ class MQTTClient(object):
 			"-t",
 			topic,
 			"-m",
-			message
+			f"'{message}'"
 		]
 		proc = subprocess.Popen(
 			proc_params,
@@ -201,7 +201,7 @@ class MQTTClient(object):
 			stderr = subprocess.PIPE,
 			universal_newlines = True,
 			cwd = os.getcwd(),
-			shell = True
+			shell = False
 		)
 		stdout, stderr = proc.communicate()
 		# print(stdout)
@@ -216,8 +216,8 @@ class MQTTClient(object):
 		# pubs.result()
 
 
-	def unsubscribe(self, topic):
-		self.__client.unsubscribe(topic)
+	# def unsubscribe(self, topic):
+	# 	self.__client.unsubscribe(topic)
 
-	def disconnect(self):
-		self.__client.stop()
+	# def disconnect(self):
+	# 	self.__client.stop()

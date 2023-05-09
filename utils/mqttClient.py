@@ -193,7 +193,7 @@ class MQTTClient(object):
 			"-t",
 			topic,
 			"-m",
-			f"'{message}'"
+			f"{message}"
 		]
 		proc = subprocess.Popen(
 			proc_params,

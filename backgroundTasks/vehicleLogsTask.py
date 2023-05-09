@@ -23,7 +23,7 @@ def wait_for_data(callback, timeout = 30):
 		else:
 			time.sleep(1)
 
-async def wait_for_data_async(callback, timeout = 15):
+async def wait_for_data_async(callback, timeout = 15, async_event: asyncio.Event = None):
 	subscriber = REDIS_CLIENT.pubsub()
 	subscriber.subscribe("dataAdderSubscribe")
 
@@ -38,6 +38,8 @@ async def wait_for_data_async(callback, timeout = 15):
 				logger.error(f"Error running {callback}. {e}")
 		else:
 			await asyncio.sleep(1)
+	if async_event:
+		async_event.set()
 
 
 @celery_app.task(name = "backgroundTasks.vehicle_logs_schedule")

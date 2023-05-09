@@ -106,7 +106,7 @@ class VehicleLogsController:
 
 
 		event_loop = asyncio.get_event_loop()
-		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout))
+		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout, async_event = all_msgs_received))
 		for did in dids_list:
 			try:
 				StatusGetter.publish(diag_name=did.diag_name, frame_id=did.frame_id, inpt_data_hex=did.hex_data)

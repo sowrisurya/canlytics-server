@@ -124,7 +124,7 @@ class StatusGetter:
 
 	@staticmethod
 	def status_diagonostic_callback(crnt_msg, data):
-		logger.info(f"Received data: {data}")
+		print(f"Received data: {data}")
 		if data.startswith("server>") or "|" not in data:
 			return	
 		if data.startswith("client_id:"):

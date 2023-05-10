@@ -69,7 +69,7 @@ def gps_status_schedule():
 	StatusGetter.publish_gps()
 	StatusGetter.publish_vehicle_status()
 
-	wait_for_data(callback=StatusGetter.status_diagonostic_callback, timeout=15)
+	wait_for_data(callback=StatusGetter.status_diagonostic_callback, timeout=20)
 
 	logger.info("done")
 	return True

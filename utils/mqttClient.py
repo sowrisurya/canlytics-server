@@ -9,7 +9,7 @@ from utils.consts import (
 	MQTT_PRIVATE_KEY,
 	MQTT_CERTIFICATE
 )
-import threading, time, os, subprocess, sys
+import threading, time, os, subprocess, sys, asyncio
 import logging, json
 
 TIMEOUT = 100
@@ -106,7 +106,15 @@ class MQTTClient(object):
 	# def ackCallback(self, mid, data):
 	# 	print("Received ack for message: " + str(mid) + " data: " + str(data))
 
-	def subscribe(self, topic):
+	async def read_pipe(self, pipe):
+		loop = asyncio.get_event_loop()
+		stream_reader = asyncio.StreamReader(loop=loop)
+		transport, _ = await loop.connect_read_pipe(lambda: asyncio.StreamReaderProtocol(stream_reader), pipe.stdout)
+	
+		return stream_reader, transport
+
+
+	async def subscribe(self, topic):
 		proc_params = [
 			"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
 			"sub",
@@ -129,30 +137,117 @@ class MQTTClient(object):
 			"-t",
 			topic
 		]
-		with subprocess.Popen(
-			proc_params,
-			stdout = subprocess.PIPE,
-			stderr = subprocess.STDOUT,
-			universal_newlines = True,
-			cwd = os.getcwd(),
-			shell = True if sys.platform == "win32" else False,
-		) as proc:
+
+		async def _read_stream(stream):
 			start_adding = False
 			output = ""
-			for line in proc.stdout:
-				if line.startswith("{"):
-					start_adding = True
-				elif line.startswith("}"):
-					start_adding = False
-					output += line
-					data = json.loads(output)
-					print(data)
-					if self.__callback is not None:
-						self.__callback(data)
-					# print(data)
-					output = ""
-				if start_adding:
-					output += line
+			while True:
+				line = await stream.readline()
+				if not line:
+					await asyncio.sleep(0.1)
+				else:
+					line = line.decode("utf-8").strip()
+					if line.startswith("{"):
+						start_adding = True
+					elif line.startswith("}"):
+						start_adding = False
+						output += line
+						data = json.loads(output)
+						if self.__callback is not None:
+							self.__callback(data)
+						# print(data)
+						output = ""
+					if start_adding:
+						output += line
+				# 	await asyncio.sleep(0.1)
+		# proc = asyncio.create_subprocess_exec(
+		# 	program = proc_params[0],
+		# 	*proc_params[1:],
+		# 	stdout = asyncio.subprocess.PIPE,
+		# 	stderr = asyncio.subprocess.PIPE,
+		# 	cwd = os.getcwd(),
+		# 	universal_newlines=True,
+		# 	shell = True if sys.platform == "win32" else False,
+		# )
+		try:
+			proc = await asyncio.create_subprocess_shell(
+				cmd = " ".join(proc_params),
+				stdout = asyncio.subprocess.PIPE,
+				stderr = asyncio.subprocess.PIPE,
+				cwd = os.getcwd(),
+				universal_newlines=False,
+				shell = True if sys.platform == "win32" else False,
+			)
+
+			await asyncio.gather(
+				_read_stream(proc.stdout),
+				_read_stream(proc.stderr),
+				proc.wait(),
+			)
+		except Exception as e:
+			print(e)
+		# proc = subprocess.Popen(
+		# 	proc_params,
+		# 	stdout = subprocess.PIPE,
+		# 	stderr = subprocess.STDOUT,
+		# 	universal_newlines = True,
+		# 	cwd = os.getcwd(),
+		# 	shell = True if sys.platform == "win32" else False,
+		# )
+		# await self.stream_read_pipe(proc)
+		# stdout, stdout_transport = await self.read_pipe(proc.stdout)
+		# stderr, stderr_transport = await self.read_pipe(proc.stderr)
+		# print("Subscribing to topic: " + topic)
+
+		# name = {stdout: 'OUT', stderr: 'ERR'}
+		# registered = {
+		# 	asyncio.Task(stderr.read()): stderr,
+		# 	asyncio.Task(stdout.read()): stdout
+		# }
+
+		# timeout = None
+		# print("Subscribing to topic: " + topic)
+		# while registered:
+		# 	done, pending = await asyncio.wait(
+		# 		registered, timeout=timeout,
+		# 		return_when=asyncio.FIRST_COMPLETED
+		# 	)
+		# 	if not done:
+		# 		break
+		# 	for f in done:
+		# 		stream = registered.pop(f)
+		# 		res = f.result()
+		# 		if res != b'':
+		# 			print(name[stream], res.decode('ascii').rstrip())
+		# 			registered[asyncio.Task(stream.read())] = stream
+		# 	timeout = 0.0
+		# print("Done")
+		# stdout_transport.close()
+		# stderr_transport.close()
+		# with subprocess.Popen(
+		# 	proc_params,
+		# 	stdout = subprocess.PIPE,
+		# 	stderr = subprocess.STDOUT,
+		# 	universal_newlines = True,
+		# 	cwd = os.getcwd(),
+		# 	shell = True if sys.platform == "win32" else False,
+		# ) as proc:
+		# 	start_adding = False
+		# 	output = ""
+		# 	for line in proc.stdout:
+		# 		if line.startswith("{"):
+		# 			start_adding = True
+		# 		elif line.startswith("}"):
+		# 			start_adding = False
+		# 			output += line
+		# 			data = json.loads(output)
+		# 			print(data)
+		# 			if self.__callback is not None:
+		# 				self.__callback(data)
+		# 			# print(data)
+		# 			output = ""
+		# 		if start_adding:
+		# 			output += line
 				# if "received PUBLISH" in line:
 					# print(line)
 			# stdout, stderr = proc.communicate()

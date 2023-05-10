@@ -37,7 +37,7 @@ class DataAdderQueue(object):
 					continue
 				self.__crnt_msg = data
 				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
-				await self.wait_for_mqtt_msg(testing = False, timeout = 30)
+				# await self.wait_for_mqtt_msg_async(testing = False, timeout = 30)
 				await asyncio.sleep(2)
 			else:
 				await asyncio.sleep(0.1)
@@ -47,12 +47,10 @@ class DataAdderQueue(object):
 		while self.__crnt_msg is not None and time.time() - start_time < timeout:
 			time.sleep(0.1)
 
-	async def wait_for_mqtt_msg_async(self, timeout = 10, testing = True, testing_message = "client_id:simcom_client01|62 F1 90 53 42 4D 31 36 41 45 42 38 4E 57 30 30 30 32 34 35"):
+	async def wait_for_mqtt_msg_async(self, timeout = 10):
 		start_time = time.time()
 		while self.__crnt_msg is not None and time.time() - start_time < timeout:
 			await asyncio.sleep(0.1)
-		if testing:
-			self.recv_data_callback(testing_message)
 
 	def recv_data_callback(self, message):
 		try:
@@ -64,20 +62,20 @@ class DataAdderQueue(object):
 			return
 		if data.startswith("server>"):
 			return
-		else:
-			data = data.lower()
-			crnt_msg = self.__crnt_msg
-			REDIS_CLIENT.publish("dataAdderSubscribe", json.dumps({"crnt_msg": crnt_msg, "data": data}))
-			self.__crnt_msg = None
+		data = data.lower()
+		crnt_msg = self.__crnt_msg
+		REDIS_CLIENT.publish("dataAdderSubscribe", json.dumps({"crnt_msg": crnt_msg, "data": data}))
+		self.__crnt_msg = None
 
-	def configure(self):
-		def run_loop():
-			while True:
-				try:
-					self.__mqtt_client.subscribe(MQTT_TOPIC)
-				except Exception as e:
-					print("Error in subscribing to topic: {}".format(e))
-					time.sleep(1)
-		thrd = threading.Thread(target=run_loop, daemon=True, name="mqtt-subscriber")
-		thrd.start()
-		return thrd
+	async def configure(self):
+		await self.__mqtt_client.subscribe(MQTT_TOPIC)
+		# def run_loop():
+		# 	while True:
+		# 		try:
+		# 			self.__mqtt_client.subscribe(MQTT_TOPIC)
+		# 		except Exception as e:
+		# 			print("Error in subscribing to topic: {}".format(e))
+		# 			time.sleep(1)
+		# thrd = threading.Thread(target=run_loop, daemon=True, name="mqtt-subscriber")
+		# thrd.start()
+		# return thrd

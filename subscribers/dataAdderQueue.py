@@ -22,7 +22,7 @@ class DataAdderQueue(object):
 				if not str(data["data"]).startswith("server>"):
 					continue
 				self.__crnt_msg = data
-				MQTTClient.publish(MQTT_TOPIC, data["data"])
+				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
 				self.wait_for_mqtt_msg(timeout = 30)
 				time.sleep(2)
 			else:

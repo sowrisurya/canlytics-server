@@ -155,7 +155,7 @@ class MQTTClient(object):
 						data = json.loads(output)
 						if self.__callback is not None:
 							self.__callback(data)
-						# print(data)
+						print(data)
 						output = ""
 					if start_adding:
 						output += line

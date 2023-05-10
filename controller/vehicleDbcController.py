@@ -8,7 +8,11 @@ import random, string, asyncio
 from subscribers import DataController
 from subscribers import StatusGetter
 import logging
-from backgroundTasks.vehicleLogsTask import wait_for_data_async
+from backgroundTasks.vehicleLogsTask import (
+    wait_for_data_async, 
+    gps_status_schedule,
+    vehicle_logs_schedule,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -81,6 +85,7 @@ class VehicleDbcController:
 			except Exception as e:
 				logger.error(f"Error: {e}")
 			await task
+			gps_status_schedule.apply_async()
 
 			return vehicle.chipId
 			### End of prototype
@@ -134,6 +139,7 @@ class VehicleDbcController:
 						for did in vehicle_dbc.dids_list
 					]
 				}
+			vehicle_logs_schedule.apply_async()
 			return None
 		except Exception as e:
 			logger.error(f"Error: {e}")

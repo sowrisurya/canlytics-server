@@ -35,7 +35,7 @@ import asyncio
 event_loop = asyncio.get_event_loop()
 
 async def main():
-	vehicle_logs_schedule.apply()
+	# vehicle_logs_schedule.apply()
     
     # gps_status_schedule.apply()
 	# getter = StatusGetter()
@@ -44,7 +44,11 @@ async def main():
 	# await getter.publish_vehicle_status()
 	# await getter.publish_gps()
 	# await getter.wait()
-event_loop.run_until_complete(main())
+	gps_status_schedule.apply_async()
+
+if __name__ == "__main__":
+	event_loop.run_until_complete(main())
+
 # from backgroundTasks.vehicleLogsTask import vehicle_logs_schedule
 
 # VehicleLogsController.get_vehicle_logs("SBM16AEB8NW000245")

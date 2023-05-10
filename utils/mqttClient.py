@@ -1,6 +1,6 @@
 # from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
-# from awsiot import mqtt_connection_builder, mqtt5_client_builder
-# from awscrt import mqtt, mqtt5
+from awsiot import mqtt_connection_builder, mqtt5_client_builder
+from awscrt import mqtt, mqtt5
 # from concurrent.futures import Future
 from utils.consts import (
 	MQTT_CLIENT_ID,
@@ -22,36 +22,36 @@ class MQTTClient(object):
 	# 	cls.callback = callback
 	# 	return cls.instance
 
-	# def __create_new_client(self):
-	# 	self.__client = mqtt5_client_builder.mtls_from_path(
-	# 		endpoint = MQTT_HOST,
-	# 		port = 8883,
-	# 		cert_filepath = MQTT_CERTIFICATE,
-	# 		pri_key_filepath = MQTT_PRIVATE_KEY,
-	# 		ca_filepath = MQTT_ROOT_CA,
-	# 		client_id = MQTT_CLIENT_ID,
-	# 		clean_session = True,
-	# 		on_publish_received = self.on_publish_callback_fn,
-	# 		on_lifecycle_stopped = self.on_lifecycle_stopped,
-	# 		on_lifecycle_connection_success = self.on_lifecycle_connection_success,
-	# 		on_lifecycle_connection_failure = self.on_lifecycle_connection_failure,
-	# 		on_connection_interrupted = self.on_connection_interrupted,
-	# 		on_lifecycle_attempting_connect  = self.on_lifecycle_attempting_connect,
-	# 		on_lifecycle_disconnection = self.on_lifecycle_disconnection,
+	def __create_new_client(self):
+		self.__client = mqtt5_client_builder.mtls_from_path(
+			endpoint = MQTT_HOST,
+			port = 8883,
+			cert_filepath = MQTT_CERTIFICATE,
+			pri_key_filepath = MQTT_PRIVATE_KEY,
+			ca_filepath = MQTT_ROOT_CA,
+			client_id = MQTT_CLIENT_ID,
+			clean_session = True,
+			on_publish_received = self.on_publish_callback_fn,
+			on_lifecycle_stopped = self.on_lifecycle_stopped,
+			on_lifecycle_connection_success = self.on_lifecycle_connection_success,
+			on_lifecycle_connection_failure = self.on_lifecycle_connection_failure,
+			on_connection_interrupted = self.on_connection_interrupted,
+			on_lifecycle_attempting_connect  = self.on_lifecycle_attempting_connect,
+			on_lifecycle_disconnection = self.on_lifecycle_disconnection,
 
-	# 	)
-	# 	self.__client.start()
-	# 	lifecycle_connect_success_data = self.__future_connection_success.result(TIMEOUT)
-	# 	connack_packet = lifecycle_connect_success_data.connack_packet
-	# 	negotiated_settings = lifecycle_connect_success_data.negotiated_settings
-	# 	print(f"Connected to endpoint:'{MQTT_HOST}' with Client ID:'{MQTT_CLIENT_ID}' with reason_code:{repr(connack_packet.reason_code)}")
+		)
+		self.__client.start()
+		lifecycle_connect_success_data = self.__future_connection_success.result(TIMEOUT)
+		connack_packet = lifecycle_connect_success_data.connack_packet
+		negotiated_settings = lifecycle_connect_success_data.negotiated_settings
+		print(f"Connected to endpoint:'{MQTT_HOST}' with Client ID:'{MQTT_CLIENT_ID}' with reason_code:{repr(connack_packet.reason_code)}")
 
 	def __init__(self, callback = None):
 		self.__callback = callback
 		# self.__future_stopped = Future()
 		# self.__future_connection_success = Future()
 		# self.__topic = None
-		# self.__create_new_client()
+		self.__create_new_client()
 
 	# def on_publish_callback_fn(self, publish_packet):
 	# 	print("Received publish:", publish_packet)
@@ -169,51 +169,52 @@ class MQTTClient(object):
 		# self.__topic = topic
 		# subscribr_future.result()
 
-	@staticmethod
-	def publish(topic, message) -> bool:
+	# @staticmethod
+	def publish(self, topic, message) -> bool:
 		# print(f"Publishing to topic: {topic} message: {message}")
-		proc_params = [
-			"D:\\Projects\\pdsl\\canlytics\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
-			"pub",
-			"-h",
-			MQTT_HOST,
-			"-p",
-			str(8883),
-			"--cafile",
-			MQTT_ROOT_CA,
-			"--cert",
-			MQTT_CERTIFICATE,
-			"--key",
-			MQTT_PRIVATE_KEY,
-			"-d",
-			"-V",
-			str(5),
-			"-q",
-			str(1),
-			"-t",
-			topic,
-			"-m",
-			f"{message}"
-		]
-		proc = subprocess.Popen(
-			proc_params,
-			stdout = subprocess.PIPE,
-			stderr = subprocess.PIPE,
-			universal_newlines = True,
-			cwd = os.getcwd(),
-			shell = False
-		)
-		stdout, stderr = proc.communicate()
+		# proc_params = [
+		# 	"D:\\Projects\\pdsl\\canlytics\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
+		# 	"pub",
+		# 	"-h",
+		# 	MQTT_HOST,
+		# 	"-p",
+		# 	str(8883),
+		# 	"--cafile",
+		# 	MQTT_ROOT_CA,
+		# 	"--cert",
+		# 	MQTT_CERTIFICATE,
+		# 	"--key",
+		# 	MQTT_PRIVATE_KEY,
+		# 	"-d",
+		# 	"-V",
+		# 	str(5),
+		# 	"-q",
+		# 	str(1),
+		# 	"-t",
+		# 	topic,
+		# 	"-m",
+		# 	f"{message}"
+		# ]
+		# proc = subprocess.Popen(
+		# 	proc_params,
+		# 	stdout = subprocess.PIPE,
+		# 	stderr = subprocess.PIPE,
+		# 	universal_newlines = True,
+		# 	cwd = os.getcwd(),
+		# 	shell = False
+		# )
+		# stdout, stderr = proc.communicate()
 		# print(stdout)
 		# print(stderr)
-		# pubs = self.__client.publish(
-		# 	publish_packet = mqtt5.PublishPacket(
-		# 		topic = topic,
-		# 		payload = message,
-		# 		qos = mqtt5.QoS.AT_LEAST_ONCE
-		# 	)
-		# )
-		# pubs.result()
+
+		pubs = self.__client.publish(
+			publish_packet = mqtt5.PublishPacket(
+				topic = topic,
+				payload = message,
+				qos = mqtt5.QoS.AT_LEAST_ONCE
+			)
+		)
+		pubs.result()
 
 
 	# def unsubscribe(self, topic):

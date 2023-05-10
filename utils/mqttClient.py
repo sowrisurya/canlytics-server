@@ -53,14 +53,14 @@ class MQTTClient(object):
 		# self.__topic = None
 		self.__create_new_client()
 
-	def on_publish_callback_fn(self, publish_packet):
-		print("Received publish:", publish_packet)
-		publish_packet = publish_packet.publish_packet
-		assert isinstance(publish_packet, mqtt5.PublishPacket)
-		if self.__callback is not None:
-			self.__callback(publish_packet)
-		if self.__topic:
-			self.reset_connection()
+	# def on_publish_callback_fn(self, publish_packet):
+	# 	print("Received publish:", publish_packet)
+	# 	publish_packet = publish_packet.publish_packet
+	# 	assert isinstance(publish_packet, mqtt5.PublishPacket)
+	# 	if self.__callback is not None:
+	# 		self.__callback(publish_packet)
+	# 	if self.__topic:
+	# 		self.reset_connection()
 
 	def on_connection_interrupted(self, connection, error, **kwargs):
 		print(f"MQTT connection interrupted: {error}")
@@ -78,7 +78,7 @@ class MQTTClient(object):
 
 	def on_lifecycle_disconnection(self, lifecycle_disconnected_data):
 		print("Lifecycle Disconnected", lifecycle_disconnected_data)
-		self.reset_connection()
+		# self.reset_connection()
 
 	# def reset_connection(self):
 	# 	self.__future_stopped = Future()
@@ -135,7 +135,7 @@ class MQTTClient(object):
 			stderr = subprocess.STDOUT,
 			universal_newlines = True,
 			cwd = os.getcwd(),
-			shell = False
+			shell = True if sys.platform == "win32" else False,
 		) as proc:
 			start_adding = False
 			output = ""
@@ -173,7 +173,7 @@ class MQTTClient(object):
 	def publish(self, topic, message) -> bool:
 		# print(f"Publishing to topic: {topic} message: {message}")
 		# proc_params = [
-		# 	"D:\\Projects\\pdsl\\canlytics\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
+		# 	"D:\\Projects\\pdsl\\canlytics\\server\\mqtt-cli.exe" if sys.platform == "win32" else "/usr/bin/mqtt",
 		# 	"pub",
 		# 	"-h",
 		# 	MQTT_HOST,
@@ -201,7 +201,7 @@ class MQTTClient(object):
 		# 	stderr = subprocess.PIPE,
 		# 	universal_newlines = True,
 		# 	cwd = os.getcwd(),
-		# 	shell = False
+		# 	shell = True if sys.platform == "win32" else False,
 		# )
 		# stdout, stderr = proc.communicate()
 		# print(stdout)

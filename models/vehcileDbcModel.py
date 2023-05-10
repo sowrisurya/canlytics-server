@@ -4,7 +4,8 @@ from bson import DBRef, ObjectId
 
 class SelectedDIDVehicle(mongoengine.EmbeddedDocument):
 	diag_name = mongoengine.StringField(required = True)
-	frame_id = mongoengine.IntField(required = True)
+	frame_id = mongoengine.StringField(required = True)
+	# frame_id = mongoengine.IntField(required = True)
 	start_bit = mongoengine.IntField(required = True)
 	hex_data = mongoengine.StringField()
 	# did = mongoengine.StringField()

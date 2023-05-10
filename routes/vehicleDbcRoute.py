@@ -84,7 +84,7 @@ async def add_update_vehicles_dids(vehicle_ids: List[str], didsList: List[Vehicl
 # Update Vehicle ChipID
 @vehicleDbcRouter.put("/chipid/", response_model=ResponseSchema)
 async def update_vehicle_chipid(vehicle_id: str, frame_id: str, hex_data: str):
-	chip_id = await VehicleDbcController.get_vehicle_vin_chipid(vehicle_id, frame_id = int(frame_id, 16), input_data_hex = hex_data)
+	chip_id = await VehicleDbcController.get_vehicle_vin_chipid(vehicle_id, frame_id = frame_id, input_data_hex = hex_data)
 	if chip_id:
 		return ResponseSchema(
 			status = 200,

@@ -8,6 +8,7 @@ from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
 from utils.influxClient import InfluxClient
 import time, asyncio, json
+from utils import REDIS_CLIENT
 from subscribers.statusGetter import StatusGetter
 from subscribers.dataAdderQueue import DataAdderQueue
 from utils.mqttClient import MQTTClient
@@ -36,15 +37,21 @@ event_loop = asyncio.get_event_loop()
 
 async def main():
 	# vehicle_logs_schedule.apply()
-    
-    # gps_status_schedule.apply()
+	pubsub = REDIS_CLIENT.pubsub()
+	pubsub.subscribe("dataAdderPublish")
+	while True:
+		msfg = pubsub.get_message(ignore_subscribe_messages=True, timeout=1)
+		if msfg:
+			data = json.loads(msfg["data"].decode("utf-8"))
+			print(data)
+	# gps_status_schedule.apply()
 	# getter = StatusGetter()
 	# getter.configure()
 
 	# await getter.publish_vehicle_status()
 	# await getter.publish_gps()
 	# await getter.wait()
-	gps_status_schedule.apply_async()
+	# gps_status_schedule.apply_async()
 
 if __name__ == "__main__":
 	event_loop.run_until_complete(main())

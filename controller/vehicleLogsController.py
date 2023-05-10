@@ -104,7 +104,6 @@ class VehicleLogsController:
 				if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
 					all_msgs_received.set()
 
-
 		event_loop = asyncio.get_event_loop()
 		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout, async_event = all_msgs_received))
 		for did in dids_list:

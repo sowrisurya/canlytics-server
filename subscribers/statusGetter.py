@@ -69,7 +69,6 @@ class StatusGetter:
 		# frame_id = "1971"
 		# diag_name = "DiagName"
 		success_message = hex_data[:2] == "62"
-		logger.info(crnt_msg)
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
@@ -170,8 +169,7 @@ class StatusGetter:
 		# self.__messages_received = False
 
 	@staticmethod
-	def publish(diag_name: str, frame_id: int, inpt_data_hex: str):
-		frame_id_hex = hex(frame_id)[2:]
+	def publish(diag_name: str, frame_id: str, inpt_data_hex: str):
 		if len(inpt_data_hex) % 2 != 0:
 			raise Exception("Invalid input data")
 		if inpt_data_hex.startswith("0x"):
@@ -182,7 +180,7 @@ class StatusGetter:
 			raise Exception("Invalid input data")
 		data_hex = inpt_data_hex.ljust(16, '0')
 		data_hex = " ".join(data_hex[i:i+2] for i in range(0, len(data_hex), 2))
-		pub_message = "server>{} {}<".format(frame_id_hex, data_hex)
+		pub_message = "server>{} {}<".format(frame_id, data_hex)
 		StatusGetter.publish_message({
 			"diag_name": diag_name,
 			"frame_id": frame_id,

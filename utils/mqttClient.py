@@ -176,7 +176,7 @@ class MQTTClient(object):
 				stderr = asyncio.subprocess.PIPE,
 				cwd = os.getcwd(),
 				universal_newlines=False,
-				shell = True if sys.platform == "win32" else False,
+				shell = True,
 			)
 
 			await asyncio.gather(

@@ -1,7 +1,7 @@
 # from AWSIoTPythonSDK.MQTTLib import AWSIoTMQTTClient
 from awsiot import mqtt_connection_builder, mqtt5_client_builder
 from awscrt import mqtt, mqtt5
-# from concurrent.futures import Future
+from concurrent.futures import Future
 from utils.consts import (
 	MQTT_CLIENT_ID,
 	MQTT_HOST,
@@ -31,7 +31,7 @@ class MQTTClient(object):
 			ca_filepath = MQTT_ROOT_CA,
 			client_id = MQTT_CLIENT_ID,
 			clean_session = True,
-			on_publish_received = self.on_publish_callback_fn,
+			# on_publish_received = self.on_publish_callback_fn,
 			on_lifecycle_stopped = self.on_lifecycle_stopped,
 			on_lifecycle_connection_success = self.on_lifecycle_connection_success,
 			on_lifecycle_connection_failure = self.on_lifecycle_connection_failure,
@@ -48,37 +48,37 @@ class MQTTClient(object):
 
 	def __init__(self, callback = None):
 		self.__callback = callback
-		# self.__future_stopped = Future()
-		# self.__future_connection_success = Future()
+		self.__future_stopped = Future()
+		self.__future_connection_success = Future()
 		# self.__topic = None
 		self.__create_new_client()
 
-	# def on_publish_callback_fn(self, publish_packet):
-	# 	print("Received publish:", publish_packet)
-		# publish_packet = publish_packet.publish_packet
-		# assert isinstance(publish_packet, mqtt5.PublishPacket)
-		# if self.__callback is not None:
-		# 	self.__callback(publish_packet)
-		# if self.__topic:
-		# 	self.reset_connection()
+	def on_publish_callback_fn(self, publish_packet):
+		print("Received publish:", publish_packet)
+		publish_packet = publish_packet.publish_packet
+		assert isinstance(publish_packet, mqtt5.PublishPacket)
+		if self.__callback is not None:
+			self.__callback(publish_packet)
+		if self.__topic:
+			self.reset_connection()
 
-	# def on_connection_interrupted(self, connection, error, **kwargs):
-	# 	print(f"MQTT connection interrupted: {error}")
+	def on_connection_interrupted(self, connection, error, **kwargs):
+		print(f"MQTT connection interrupted: {error}")
 
-	# def on_connection_resumed(self, connection, return_code, session_present, **kwargs):
-	# 	print(f"MQTT connection resumed with return code: {return_code}")
+	def on_connection_resumed(self, connection, return_code, session_present, **kwargs):
+		print(f"MQTT connection resumed with return code: {return_code}")
 
-	# def on_lifecycle_attempting_connect(self, *args, **kwargs):
-	# 	print("Lifecycle Attempting Connect")
+	def on_lifecycle_attempting_connect(self, *args, **kwargs):
+		print("Lifecycle Attempting Connect")
 
 	# Callback for the lifecycle event Stopped
-	# def on_lifecycle_stopped(self, lifecycle_stopped_data: mqtt5.LifecycleStoppedData):
-	# 	print("Lifecycle Stopped", lifecycle_stopped_data)
-	# 	self.__future_stopped.set_result(lifecycle_stopped_data)
+	def on_lifecycle_stopped(self, lifecycle_stopped_data: mqtt5.LifecycleStoppedData):
+		print("Lifecycle Stopped", lifecycle_stopped_data)
+		self.__future_stopped.set_result(lifecycle_stopped_data)
 
-	# def on_lifecycle_disconnection(self, lifecycle_disconnected_data):
-	# 	print("Lifecycle Disconnected", lifecycle_disconnected_data)
-	# 	self.reset_connection()
+	def on_lifecycle_disconnection(self, lifecycle_disconnected_data):
+		print("Lifecycle Disconnected", lifecycle_disconnected_data)
+		self.reset_connection()
 
 	# def reset_connection(self):
 	# 	self.__future_stopped = Future()
@@ -89,15 +89,15 @@ class MQTTClient(object):
 	# 	time.sleep(5)
 
 	# Callback for the lifecycle event Connection Success
-	# def on_lifecycle_connection_success(self, lifecycle_connect_success_data: mqtt5.LifecycleConnectSuccessData):
-	# 	print("Lifecycle Connection Success")
-	# 	if not self.__future_connection_success.done():
-	# 		self.__future_connection_success.set_result(lifecycle_connect_success_data)
+	def on_lifecycle_connection_success(self, lifecycle_connect_success_data: mqtt5.LifecycleConnectSuccessData):
+		print("Lifecycle Connection Success")
+		if not self.__future_connection_success.done():
+			self.__future_connection_success.set_result(lifecycle_connect_success_data)
 
 	# # Callback for the lifecycle event Connection Failure
-	# def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
-	# 	print("Lifecycle Connection Failure")
-	# 	print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
+	def on_lifecycle_connection_failure(self, lifecycle_connection_failure: mqtt5.LifecycleConnectFailureData):
+		print("Lifecycle Connection Failure")
+		print("Connection failed with exception:{}".format(lifecycle_connection_failure.exception))
 
 	# @property
 	# def client(self):

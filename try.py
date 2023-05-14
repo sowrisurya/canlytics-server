@@ -37,14 +37,21 @@ event_loop = asyncio.get_event_loop()
 
 async def main():
 	# vehicle_logs_schedule.apply()
-	# pubsub = REDIS_CLIENT.pubsub()
+	pubsub = REDIS_CLIENT.pubsub()
 	# pubsub.subscribe("dataAdderPublish")
+	REDIS_CLIENT.publish("dataAdderPublish", "server>7c4 22 f1 90<")
 	# while True:
 	# 	msfg = pubsub.get_message(ignore_subscribe_messages=True, timeout=1)
 	# 	if msfg:
 	# 		data = json.loads(msfg["data"].decode("utf-8"))
 	# 		print(data)
-	gps_status_schedule.apply()
+	# gps_status_schedule.apply()
+	
+	# task = asyncio.create_task(client.wait())
+	# # client.wait()
+	# # await client.wait()
+	# await asyncio.sleep(30)
+	# client.stop()
 	# getter = StatusGetter()
 	# getter.configure()
 

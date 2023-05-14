@@ -1,10 +1,16 @@
 import celery
+from utils.consts import (
+    REDIS_DB,
+    REDIS_HOST,
+    REDIS_PASSWORD,
+    REDIS_PORT
+)
 import os
 os.environ.setdefault('FORKED_BY_MULTIPROCESSING', '1')
 
 celery_app = celery.Celery(
-    'celery_app', 
-    broker='redis://localhost:6379/0', 
+    'celery_app',
+    broker=f'redis://{REDIS_HOST}:{REDIS_PORT}/1',
     include=[
         'backgroundTasks'
     ]

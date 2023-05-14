@@ -1,0 +1,6 @@
+*.log
+*.exe
+celerybeat*
+.venv
+**/__pycache__
+*.pyc

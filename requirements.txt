@@ -5,6 +5,7 @@ requests
 pyyaml
 # AWSIoTPythonSDK
 awsiotsdk
+# paho-mqtt
 python-multipart
 cantools
 influxdb-client

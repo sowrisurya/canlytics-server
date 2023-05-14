@@ -30,7 +30,7 @@ class MQTTClient(object):
 			pri_key_filepath = MQTT_PRIVATE_KEY,
 			ca_filepath = MQTT_ROOT_CA,
 			client_id = MQTT_CLIENT_ID,
-			clean_session = True,
+			clean_session = False,
 			# on_publish_received = self.on_publish_callback_fn,
 			on_lifecycle_stopped = self.on_lifecycle_stopped,
 			on_lifecycle_connection_success = self.on_lifecycle_connection_success,

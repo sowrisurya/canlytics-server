@@ -1,0 +1,61 @@
+version: "3.0"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -u app.py
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - mongodb
+      - influxdb
+    volumes:
+      - .:/app
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb:/data/db
+
+  influxdb:
+    image: influxdb:alpine
+    ports:
+      - "8086:8086"
+    environment:
+      - INFLUXDB_DB=metrics
+      - INFLUXDB_ADMIN_USER=admin
+      - INFLUXDB_ADMIN_PASSWORD=supersecretpassword
+      - INFLUXDB_USER=telegraf
+      - INFLUXDB_USER_PASSWORD=secretpassword
+    volumes:
+      - influxdb:/var/lib/influxdb
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python -u worker.py
+    depends_on:
+      - redis
+      - mongodb
+      - influxdb
+    volumes:
+      - .:/app
+
+
+volumes:
+  influxdb:
+  mongodb:
+  redis:

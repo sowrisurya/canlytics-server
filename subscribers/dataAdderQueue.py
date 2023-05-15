@@ -37,7 +37,7 @@ class DataAdderQueue(object):
 					continue
 				self.__crnt_msg = data
 				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
-				# await self.wait_for_mqtt_msg_async(testing = False, timeout = 30)
+				await self.wait_for_mqtt_msg_async(timeout = 30)
 				await asyncio.sleep(2)
 			else:
 				await asyncio.sleep(0.1)
@@ -63,8 +63,7 @@ class DataAdderQueue(object):
 		if data.startswith("server>"):
 			return
 		data = data.lower()
-		crnt_msg = self.__crnt_msg
-		REDIS_CLIENT.publish("dataAdderSubscribe", json.dumps({"crnt_msg": crnt_msg, "data": data}))
+		REDIS_CLIENT.publish("dataAdderSubscribe", json.dumps({"crnt_msg": self.__crnt_msg, "data": data}))
 		self.__crnt_msg = None
 
 	async def configure(self):

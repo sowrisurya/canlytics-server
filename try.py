@@ -37,9 +37,20 @@ event_loop = asyncio.get_event_loop()
 
 async def main():
 	# vehicle_logs_schedule.apply()
-	pubsub = REDIS_CLIENT.pubsub()
+	# msg = "CLIENT_ID:SIMCom_client01|7f 22 31".lower()
+	hex_str = "CLIENT_ID:SIMCom_client01|62 f1 08 4c 38 42 32 2d 31 34 43 34 30 38 2d 41 56 0 0 0 0 0 0 0 0 0 0"
+	### Pad single 0 to double 0
+	# while " 0 " in hex_str:
+	# 	hex_str = hex_str.replace(" 0 ", " 00 ")
+	# if hex_str.endswith(" 0"):
+	# 	hex_str = hex_str[:-2] + " 00"
+	# # hex_str = hex_str.replace(" 0", " 00 ")
+	# print(hex_str)
+	# print(bytes.fromhex(hex_str).decode())
+	print(StatusGetter.diagonostic_callback({"input_data": "22 f1 08", "frame_id": "726", "diag_name": "some_diagname"}, hex_str, add_to_influx=False))
+	# pubsub = REDIS_CLIENT.pubsub()
 	# pubsub.subscribe("dataAdderPublish")
-	REDIS_CLIENT.publish("dataAdderPublish", "server>7c4 22 f1 90<")
+	# REDIS_CLIENT.publish("dataAdderPublish", "server>7c4 22 f1 90<")
 	# while True:
 	# 	msfg = pubsub.get_message(ignore_subscribe_messages=True, timeout=1)
 	# 	if msfg:

@@ -58,6 +58,12 @@ class StatusGetter:
 			return
 		device_id, hex_data = data.split("|")
 		device_id = device_id.lstrip("client_id:")
+
+		while " 0 " in hex_data:
+			hex_data = hex_data.replace(" 0 ", " 00 ")
+		if hex_data.endswith(" 0"):
+			hex_data = hex_data[:-2] + " 00"
+
 		hex_data = hex_data.replace(" ", "")
 
 		### Start Prototype ###
@@ -68,13 +74,13 @@ class StatusGetter:
 		# inpt_data = "22F190"
 		# frame_id = "1971"
 		# diag_name = "DiagName"
+
 		success_message = hex_data[:2] == "62"
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
 
 		### End Prototype ###
-
 
 		check_msg = hex_data[2:len(inpt_data)]
 		raw_data = hex_data[len(inpt_data):]

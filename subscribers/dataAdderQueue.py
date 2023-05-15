@@ -51,6 +51,7 @@ class DataAdderQueue(object):
 		start_time = time.time()
 		while self.__crnt_msg is not None and time.time() - start_time < timeout:
 			await asyncio.sleep(0.1)
+		self.__crnt_msg = None
 
 	def recv_data_callback(self, message):
 		try:

@@ -92,6 +92,8 @@ class VehicleLogsController:
 			log_data = StatusGetter.diagonostic_callback(crnt_msg, data, add_to_influx=False)
 			if log_data["success"] == "True":
 				device_id = log_data["device_id"]
+				if device_id not in vehicle_logs_data:
+					return
 				vehicle_logs_data[device_id]["logs"].append({
 					"time": datetime.datetime.utcnow(),
 					"raw_data": log_data["raw_data"],

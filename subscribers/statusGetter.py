@@ -59,13 +59,12 @@ class StatusGetter:
 		device_id, hex_data = data.split("|")
 		device_id = device_id.lstrip("client_id:")
 
-		while " 0 " in hex_data:
-			hex_data = hex_data.replace(" 0 ", " 00 ")
-		if hex_data.endswith(" 0"):
-			hex_data = hex_data[:-2] + " 00"
+		hex_data = "".join([ _ if len(_) == 2 else f"0{1}" for _ in hex_data.split(" ")])
 
-		hex_data = hex_data.replace(" ", "")
-
+		# while " 0 " in hex_data:
+		# 	hex_data = hex_data.replace(" 0 ", " 00 ")
+		# if hex_data.endswith(" 0"):
+		# 	hex_data = hex_data[:-2] + " 00"
 		### Start Prototype ###
 		# if success_message and hex_data[2:].startswith(self.__inpt_data[2:]):
 		# 	self.__max_clients -= 1

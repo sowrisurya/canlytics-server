@@ -75,6 +75,8 @@ class StatusGetter:
 		# diag_name = "DiagName"
 
 		success_message = hex_data[:2] == "62"
+		if not success_message:
+			return None
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
@@ -179,11 +181,7 @@ class StatusGetter:
 			raise Exception("Invalid input data")
 		if inpt_data_hex.startswith("0x"):
 			inpt_data_hex = inpt_data_hex[2:]
-		try:
-			int(inpt_data_hex, 16)
-		except:
-			raise Exception("Invalid input data")
-		data_hex = inpt_data_hex.ljust(16, '0')
+		data_hex = inpt_data_hex.ljust(16, '0').replace(" ", "")
 		data_hex = " ".join(data_hex[i:i+2] for i in range(0, len(data_hex), 2))
 		pub_message = "server>{} {}<".format(frame_id, data_hex)
 		StatusGetter.publish_message({

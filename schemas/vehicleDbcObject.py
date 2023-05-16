@@ -17,7 +17,7 @@ class VehicleDID(BaseModel):
 	diag_name: str = Field(..., example = "diag_name")
 	signal_name: str = Field(..., example = "signal_name")
 	frame_id: str = Field(..., example = "frame_id")
-	# start_bit: int = Field(..., example = "start_bit")
+	start_bit: int = Field(..., example = "start_bit")
 	hex_data: Optional[str] = Field("22F190", example = "hex_data")
 	# did: Optional[str] = None
 

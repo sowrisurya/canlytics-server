@@ -87,9 +87,15 @@ class VehicleLogsController:
 			if (vehicle_dbc := VehicleDBCDids.objects(vehicle = vehicle).first())
 		}
 		all_msgs_received = asyncio.Event()
-
+		num_callback_called = 0
 		def callback(crnt_msg, data):
+			nonlocal num_callback_called
+			num_callback_called += 1
+			if num_callback_called > len(dids_list) * len(vehicle_ids):
+				all_msgs_received.set()
 			log_data = StatusGetter.diagonostic_callback(crnt_msg, data, add_to_influx=False)
+			if not log_data:
+				return
 			if log_data["success"] == "True":
 				device_id = log_data["device_id"]
 				if device_id not in vehicle_logs_data:
@@ -103,8 +109,8 @@ class VehicleLogsController:
 					"vin": vehicle_logs_data[device_id]["vehicle_id"],
 					"frame_id": int(log_data["frame_id"]),
 				})
-				if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
-					all_msgs_received.set()
+				# if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
+				# 	all_msgs_received.set()
 
 		event_loop = asyncio.get_event_loop()
 		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout, async_event = all_msgs_received))

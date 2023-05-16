@@ -4,7 +4,12 @@ from schemas.vehicleDbcObject import (
 )
 from schemas.dbcObject import (
     CANFrame,
-    FrameSignal
+    FrameSignal,
+    CFGMetaInfo,
+    NodeLayout,
+    NetworkNode,
+    ECUNetworkInfo,
+    CFGData,
 )
 from schemas.vehicleLogsObject import (
     VehicleLogsObject,

@@ -10,10 +10,12 @@ from utils.consts import (
 	MQTT_CERTIFICATE
 )
 import threading, time, os, subprocess, sys, asyncio
-import logging, json
+import json
+from utils.logger import Logger
+
+logger = Logger(__name__)
 
 TIMEOUT = 100
-logger = logging.getLogger(__name__)
 
 class MQTTClient(object):
 	# def __new__(cls, callback = None):

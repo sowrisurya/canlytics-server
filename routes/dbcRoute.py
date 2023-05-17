@@ -32,7 +32,7 @@ async def upload_dbc(dbc_file: UploadFile = File(...), frame_id: Optional[int] =
 		return dbc_decoder.get_all_frame_ids(include_signals=True)
 
 @dbcRouter.post("/upload-cfg", response_model=CFGData)
-async def upload_dbc(cfg_file: UploadFile = File(...)):
+async def upload_cfg(cfg_file: UploadFile = File(...)):
 	data = await cfg_file.read()
 	file_data = StringIO(data.decode("utf-8"))
 	meta_info, ecu_nodes = readParseConfigFile(configFile=file_data)

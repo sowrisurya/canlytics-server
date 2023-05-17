@@ -38,9 +38,7 @@ class DataAdderQueue(object):
 				self.__crnt_msg = data
 				self.__mqtt_client.publish(MQTT_TOPIC, data["data"])
 				await self.wait_for_mqtt_msg_async(timeout = 30)
-				await asyncio.sleep(2)
-			else:
-				await asyncio.sleep(0.1)
+			await asyncio.sleep(0.1)
 
 	def wait_for_mqtt_msg(self, timeout = 10):
 		start_time = time.time()

@@ -11,7 +11,7 @@ import time, asyncio, json
 from utils import REDIS_CLIENT
 from subscribers.statusGetter import StatusGetter
 from subscribers.dataAdderQueue import DataAdderQueue
-from utils.mqttClient import MQTTClient
+from utils.mqttClientv2 import MQTTClientV2
 from backgroundTasks import vehicle_logs_schedule, gps_status_schedule
 import asyncio
 
@@ -34,11 +34,44 @@ import asyncio
 # 	time.sleep(1)
 
 event_loop = asyncio.get_event_loop()
-
+import threading
 async def main():
+	from models import Vehicle
+	vehicles = Vehicle.objects()
+	vehicle_ids = [vehicle.vin for vehicle in vehicles]
+	print("vehicle_ids: ", vehicle_ids)
+	# def callback1(msg: str):
+	# 	print("Casllback 1 = ", msg)
+	# client1 = MQTTClientV2(callback=callback1)
+
+	# thrd1 = threading.Thread(target=client1.wait, daemon=True)
+	# thrd1.start()
+	# client1.publish("test message ")
+	# print("published")
+	# await asyncio.sleep(2)
+	# print("creating client 2")
+
+	# def callback2(msg: str):
+	# 	print("Casllback 2 = ", msg)
+
+	# client2 = MQTTClientV2(callback=callback2)
+	# thrd2 = threading.Thread(target=client2.wait, daemon=True)
+	# thrd2.start()
+	# client2.publish("test message ")
+	# print("published")
+
+	# for i in range(10):
+	# 	client1.publish("test message 1")
+	# 	client2.publish("test message 2")
+	# 	await asyncio.sleep(5)
+
+	# client2.stop()
+	# client1.stop()
+	# thrd2.join()
+	# thrd1.join()
 	# vehicle_logs_schedule.apply()
 	# msg = "CLIENT_ID:SIMCom_client01|7f 22 31".lower()
-	hex_str = "CLIENT_ID:SIMCom_client01|62 f1 08 4c 38 42 32 2d 31 34 43 34 30 38 2d 41 56 0 0 0 0 0 0 0 0 0 0"
+	# hex_str = "CLIENT_ID:SIMCom_client01|62 f1 08 4c 38 42 32 2d 31 34 43 34 30 38 2d 41 56 0 0 0 0 0 0 0 0 0 0"
 	### Pad single 0 to double 0
 	# while " 0 " in hex_str:
 	# 	hex_str = hex_str.replace(" 0 ", " 00 ")
@@ -47,7 +80,7 @@ async def main():
 	# # hex_str = hex_str.replace(" 0", " 00 ")
 	# print(hex_str)
 	# print(bytes.fromhex(hex_str).decode())
-	print(StatusGetter.diagonostic_callback({"input_data": "22 f1 08", "frame_id": "726", "diag_name": "some_diagname"}, hex_str, add_to_influx=False))
+	# print(StatusGetter.diagonostic_callback({"input_data": "22 f1 08", "frame_id": "726", "diag_name": "some_diagname"}, hex_str, add_to_influx=False))
 	# pubsub = REDIS_CLIENT.pubsub()
 	# pubsub.subscribe("dataAdderPublish")
 	# REDIS_CLIENT.publish("dataAdderPublish", "server>7c4 22 f1 90<")

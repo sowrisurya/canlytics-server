@@ -7,14 +7,13 @@ from models import (
 from schemas import (
 	VehicleLogsObject,
 )
-import pandas as pd
-import asyncio, json, time
+import asyncio, time
 from backgroundTasks.vehicleLogsTask import wait_for_data_async
 from subscribers import StatusGetter
-import logging
+from utils import Logger
+from subscribers.vehicleLogsSubscriber import VehicleLogsSubscriber
 
-logger = logging.getLogger(__name__)
-
+logger = Logger(__name__)
 
 class VehicleLogsController:
 
@@ -74,6 +73,18 @@ class VehicleLogsController:
 		except Exception as e:
 			logger.error(f"Error: {e}")
 			return None
+		
+	@staticmethod
+	async def get_live_logs_v2(vehicle_ids, dids_list, timeout = 5):
+		st = time.time()
+		logs_controller = VehicleLogsSubscriber(
+			vehicle_ids = vehicle_ids,
+			dids_list = dids_list,
+			timeout = timeout
+		)
+		logs = await logs_controller.get_logs()
+		print("Time taken: ", time.time() - st)
+		return logs
 
 	@staticmethod
 	async def get_live_logs(vehicle_ids, dids_list, timeout = 100):
@@ -107,10 +118,10 @@ class VehicleLogsController:
 					"decoded_data": log_data["decoded_data"],
 					"diag_name": log_data["diag_name"],
 					"vin": vehicle_logs_data[device_id]["vehicle_id"],
-					"frame_id": int(log_data["frame_id"]),
+					"frame_id": log_data["frame_id"],
 				})
-				# if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
-				# 	all_msgs_received.set()
+				if len(vehicle_logs_data[device_id]["logs"]) == len(dids_list):
+					all_msgs_received.set()
 
 		event_loop = asyncio.get_event_loop()
 		task = event_loop.create_task(wait_for_data_async(callback = callback, timeout = timeout, async_event = all_msgs_received))

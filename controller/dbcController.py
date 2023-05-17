@@ -2,9 +2,9 @@ import cantools, os
 from mongoengine import GridFSProxy
 from models import Vehicle
 from io import StringIO
-import logging
+from utils import Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger(__name__)
 
 class DBCDecoder:
 	def __init__(self, file_path = None, file = None):

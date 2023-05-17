@@ -7,14 +7,14 @@ from controller.dbcController import DBCDecoder
 import random, string, asyncio
 from subscribers import DataController
 from subscribers import StatusGetter
-import logging
 from backgroundTasks.vehicleLogsTask import (
     wait_for_data_async, 
     gps_status_schedule,
     vehicle_logs_schedule,
 )
+from utils import Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger(__name__)
 
 class VehicleDbcController:
 

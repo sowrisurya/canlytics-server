@@ -3,9 +3,9 @@ from typing import Callable
 from utils.mqttClient import MQTTClient
 from utils.consts import MQTT_TOPIC
 import json, datetime, asyncio, time
-import logging
+from utils import Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger(__name__)
 
 class DataController:
 	def __init__(self, frame_id: int, inpt_data_hex: str, diag_name: str = "", max_clients: int = 1, callback : Callable = None) -> None:

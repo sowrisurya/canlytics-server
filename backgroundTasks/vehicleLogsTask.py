@@ -1,10 +1,10 @@
 from models import VehicleDBCDids
 from subscribers import StatusGetter
 from backgroundTasks.celery_app import celery_app
-import logging, time, asyncio, json
-from utils import REDIS_CLIENT
+import time, asyncio, json
+from utils import REDIS_CLIENT, Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger(__name__)
 # from controller.
 
 def wait_for_data(callback, timeout = 30):

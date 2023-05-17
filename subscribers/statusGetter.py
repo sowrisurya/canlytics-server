@@ -4,9 +4,9 @@ from utils.mqttClient import MQTTClient
 from utils.consts import MQTT_TOPIC
 from models import VehicleDBCDids, GPSCoord
 import json, datetime, asyncio, time
-import logging
+from utils import Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger(__name__)
 
 class StatusGetter:
 	# def __init__(self, max_clients = 1):
@@ -53,14 +53,13 @@ class StatusGetter:
 		# logger.info(f"Device ID: {device_id}, GPS: {gps_msg}")
 
 	@staticmethod
-	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True):
+	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True, data_type: str = "ascii"):
 		if not data.startswith("client_id:") and "|" not in data:
-			return
+			return None, None
 		device_id, hex_data = data.split("|")
 		device_id = device_id.lstrip("client_id:")
 
 		hex_data = "".join([ _ if len(_) == 2 else f"0{1}" for _ in hex_data.split(" ")])
-
 		# while " 0 " in hex_data:
 		# 	hex_data = hex_data.replace(" 0 ", " 00 ")
 		# if hex_data.endswith(" 0"):
@@ -76,24 +75,31 @@ class StatusGetter:
 
 		success_message = hex_data[:2] == "62"
 		if not success_message:
-			return None
+			return device_id, None
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
 
 		### End Prototype ###
-
-		check_msg = hex_data[2:len(inpt_data)]
-		raw_data = hex_data[len(inpt_data):]
+		strip_len = len(inpt_data.replace(" ", ""))
+		check_msg = hex_data[2:strip_len]
+		raw_data = hex_data[strip_len:]
 		if len(raw_data) % 2 != 0:
 			raw_data = raw_data[:-1]
-		decoded_data = bytes.fromhex(raw_data).decode()
-		decoded_data = decoded_data.replace("\x00", "")
-		logger.info("Device ID: ", device_id, end=", ")
-		logger.info("Success: ", success_message, end=", ")
-		logger.info("Check: ", check_msg, end=", ")
-		logger.info("Data: ", raw_data, end=", ")
-		logger.info("Decoded: ", decoded_data, end=" ")
+		decoded_data = None
+		if data_type == "ascii":
+			decoded_data = bytes.fromhex(raw_data).decode()
+			decoded_data = decoded_data.replace("\x00", "")
+		elif data_type == "decimal":
+			decoded_data = int(raw_data, 16)
+		# elif data_type == "time":
+		# 	decoded_data
+
+		logger.info(f"Device ID: {device_id}")
+		logger.info(f"Success: {success_message}")
+		logger.info(f"Check: {check_msg}")
+		logger.info(f"Data: {raw_data}")
+		logger.info(f"Decoded: {decoded_data}")
 		logger.info("--------------\n\n")
 		
 		log_data = {
@@ -117,7 +123,7 @@ class StatusGetter:
 			logger.error(f"Error: {e}")
 		finally:
 			log_data["device_id"] = device_id
-			return log_data
+			return device_id, log_data
 		# if self.__callback:
 		# 	self.__callback(
 		# 		device_id = device_id, 

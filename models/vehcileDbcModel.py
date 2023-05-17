@@ -27,6 +27,7 @@ class VehicleModel(mongoengine.DynamicDocument):
 	meta = {"collection": "models"}
 
 class Vehicle(mongoengine.DynamicDocument):
+	vin = mongoengine.StringField(required = True, unique = True)
 	model = mongoengine.ReferenceField(VehicleModel, required = True)
 	make = mongoengine.ReferenceField(VehicleMake, required = True)
 	meta = {"collection": "vehicles"}

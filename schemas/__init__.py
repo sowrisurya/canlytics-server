@@ -20,3 +20,4 @@ from schemas.common import (
 from schemas.vehicleObject import (
     VehicleObject,
 )
+from typing import List, Optional

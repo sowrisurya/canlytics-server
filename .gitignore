@@ -7,3 +7,4 @@ celerybeat-schedule.dat
 logs.log
 data/config.yaml
 mqtt-cli.exe
+*.log.*

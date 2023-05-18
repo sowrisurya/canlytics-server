@@ -36,10 +36,25 @@ import asyncio
 event_loop = asyncio.get_event_loop()
 import threading
 async def main():
-	from models import Vehicle
-	vehicles = Vehicle.objects()
-	vehicle_ids = [vehicle.vin for vehicle in vehicles]
-	print("vehicle_ids: ", vehicle_ids)
+	# client = InfluxClient()
+	# client.write(
+	# 	measurement=f"simcom_client01",
+	# 	tags = {}, 
+	# 	fields = {
+	# 		"raw_data": "somedata",
+	# 		"success": "true",
+	# 		"check": "f190",
+	# 		"input_data": "22F190",
+	# 		# "did": json_message.get("did"),
+	# 		"decoded_data": "SBM16AEB8NW000245",
+	# 		"diag_name": "VehicleVINNumber",
+	# 	}
+	# )
+	await gps_status_schedule()
+	# from models import Vehicle
+	# vehicles = Vehicle.objects()
+	# vehicle_ids = [vehicle.vin for vehicle in vehicles]
+	# print("vehicle_ids: ", vehicle_ids)
 	# def callback1(msg: str):
 	# 	print("Casllback 1 = ", msg)
 	# client1 = MQTTClientV2(callback=callback1)

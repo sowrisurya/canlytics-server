@@ -53,7 +53,7 @@ class StatusGetter:
 		# logger.info(f"Device ID: {device_id}, GPS: {gps_msg}")
 
 	@staticmethod
-	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True, data_type: str = "ascii"):
+	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True, data_type: int = 0):
 		if not data.startswith("client_id:") and "|" not in data:
 			return None, None
 		device_id, hex_data = data.split("|")
@@ -79,6 +79,7 @@ class StatusGetter:
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
+		parameter_name = crnt_msg.get("parameter_name", "")
 
 		### End Prototype ###
 		strip_len = len(inpt_data.replace(" ", ""))
@@ -87,11 +88,13 @@ class StatusGetter:
 		if len(raw_data) % 2 != 0:
 			raw_data = raw_data[:-1]
 		decoded_data = None
-		if data_type == "ascii":
+		if data_type == 0:
 			decoded_data = bytes.fromhex(raw_data).decode()
 			decoded_data = decoded_data.replace("\x00", "")
-		elif data_type == "decimal":
+		elif data_type == 1:
 			decoded_data = int(raw_data, 16)
+		elif data_type == 3:
+			decoded_data = raw_data
 		# elif data_type == "time":
 		# 	decoded_data
 
@@ -110,6 +113,7 @@ class StatusGetter:
 			# "did": json_message.get("did"),
 			"decoded_data": decoded_data,
 			"diag_name": diag_name,
+			"parameter_name": parameter_name,
 			"frame_id": frame_id,
 		}
 		try:
@@ -136,7 +140,7 @@ class StatusGetter:
 		# 	)
 
 	@staticmethod
-	def status_diagonostic_callback(crnt_msg, data):
+	def status_diagonostic_callback(data):
 		print(f"Received data: {data}")
 		if data.startswith("server>") or "|" not in data:
 			return	

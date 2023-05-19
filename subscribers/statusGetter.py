@@ -88,13 +88,17 @@ class StatusGetter:
 		if len(raw_data) % 2 != 0:
 			raw_data = raw_data[:-1]
 		decoded_data = None
-		if data_type == 0:
-			decoded_data = bytes.fromhex(raw_data).decode()
-			decoded_data = decoded_data.replace("\x00", "")
-		elif data_type == 1:
-			decoded_data = int(raw_data, 16)
-		elif data_type == 3:
-			decoded_data = raw_data
+		try:
+			if data_type == 0:
+				decoded_data = bytes.fromhex(raw_data).decode()
+				decoded_data = decoded_data.replace("\x00", "")
+			elif data_type == 1:
+				decoded_data = int(raw_data, 16)
+			elif data_type == 3:
+				decoded_data = raw_data
+		except Exception as e:
+			logger.error(f"Error: {e}")
+			# return device_id, None
 		# elif data_type == "time":
 		# 	decoded_data
 

@@ -14,9 +14,9 @@ class VehicleLogsObject(BaseModel):
 	decoded_data: Optional[str] = Field("NA", example = "decoded_data")
 	input_data: str = Field(..., example = "input_data")
 
-	class Config:
-		validate_assignment = True
+	# class Config:
+	# 	validate_assignment = True
 
-	@validator('frame_id')
-	def set_frame_id(cls, frame_id):
-		return hex(frame_id)[2:] if isinstance(frame_id, int) else frame_id
+	# @validator('frame_id')
+	# def set_frame_id(cls, frame_id):
+	# 	return hex(frame_id)[2:] if isinstance(frame_id, int) else frame_id

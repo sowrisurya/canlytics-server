@@ -59,7 +59,7 @@ class StatusGetter:
 		device_id, hex_data = data.split("|")
 		device_id = device_id.lstrip("client_id:")
 
-		hex_data = "".join([ _ if len(_) == 2 else f"0{1}" for _ in hex_data.split(" ")])
+		hex_data = "".join([ _ if len(_) == 2 else f"0{_[0]}" for _ in hex_data.split(" ")])
 		# while " 0 " in hex_data:
 		# 	hex_data = hex_data.replace(" 0 ", " 00 ")
 		# if hex_data.endswith(" 0"):

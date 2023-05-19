@@ -89,6 +89,8 @@ class VehicleLogsSubscriber:
 
 		self.__mqtt_client.stop()
 		self.__thrd.join()
+		del self.__mqtt_client
+		del self.__thrd
 
 	async def get_logs(self):
 		await self.publish_all()

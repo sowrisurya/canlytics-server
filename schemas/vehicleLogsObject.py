@@ -11,7 +11,7 @@ class VehicleLogsObject(BaseModel):
 	frame_id: Union[int, str] = Field(..., example = "frame_id")
 	# start_bit: int = Field(..., example = "start_bit")
 	vin: Optional[str] = Field("vin", example = "vin")
-	decoded_data: str = Field(..., example = "decoded_data")
+	decoded_data: Optional[str] = Field("NA", example = "decoded_data")
 	input_data: str = Field(..., example = "input_data")
 
 	class Config:

@@ -3,17 +3,17 @@ version: "3.0"
 
 services:
   server:
-    image: 228301419483.dkr.ecr.eu-west-2.amazonaws.com/canlytics-server:latest
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    # image: 228301419483.dkr.ecr.eu-west-2.amazonaws.com/canlytics-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python -u app.py
     ports:
       - "8000:8000"
-    depends_on:
-      - redis
-      - mongodb
-      - influxdb
+    # depends_on:
+    #   - redis
+    #   - mongodb
+    #   - influxdb
     # environment:
     #   - env=PROD
     volumes:

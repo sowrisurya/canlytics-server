@@ -40,9 +40,11 @@ class VehicleLogsController:
 				end_time = datetime.datetime.utcnow()
 			if not start_time:
 				start_time = end_time - datetime.timedelta(days = 1)
+			if end_time.replace(tzinfo = None) > datetime.datetime.utcnow().replace(tzinfo = None):
+				end_time = datetime.datetime.utcnow()
 
-			flux_range_time = VehicleLogsController.get_flux_duration((end_time - start_time).total_seconds())
-			timeshift_duration = VehicleLogsController.get_flux_duration((datetime.datetime.utcnow() - end_time).total_seconds())
+			flux_range_time = VehicleLogsController.get_flux_duration((end_time.replace(tzinfo = None) - start_time.replace(tzinfo = None)).total_seconds())
+			timeshift_duration = VehicleLogsController.get_flux_duration((datetime.datetime.utcnow().replace(tzinfo = None) - end_time.replace(tzinfo = None)).total_seconds())
 
 			vehicle = Vehicle.objects(vin = vehicle_id).first()
 			if vehicle:

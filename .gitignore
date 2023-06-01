@@ -8,3 +8,5 @@ logs.log
 data/config.yaml
 mqtt-cli.exe
 *.log.*
+test_result.json
+test.json

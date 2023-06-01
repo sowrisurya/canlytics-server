@@ -1,7 +1,9 @@
 from models import Vehicle
-from utils import MQTTClientV2, REDIS_CLIENT
+from utils import MQTTClientV2, REDIS_CLIENT, Logger
 from subscribers.statusGetter import StatusGetter
 import threading, datetime, time, asyncio
+
+logger = Logger(__name__)
 
 class VehicleLogsSubscriber:
 	def __init__(self, vehicle_ids, dids_list, timeout = 100, add_to_influx = True, callback = None):
@@ -47,6 +49,8 @@ class VehicleLogsSubscriber:
 		st = time.time()
 		while self.crnt_msg is not None and time.time() - st < self.__timeout:
 			await asyncio.sleep(0.1)
+		if self.__crnt_msg:
+			logger.error("Timeout occured for message: ", self.__crnt_msg)
 
 	def set_crnt_msg(self, value = None):
 		self.__crnt_msg = value

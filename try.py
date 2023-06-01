@@ -14,6 +14,7 @@ from subscribers.dataAdderQueue import DataAdderQueue
 from utils.mqttClientv2 import MQTTClientV2
 from backgroundTasks import vehicle_logs_schedule, gps_status_schedule
 import asyncio
+from schemas import VehicleDID
 
 # async def main():
 # 	await VehicleDbcController.get_vehicle_vin_chipid("SALEA7BU1L2000179", frame_id=1988, input_data_hex="22F190")
@@ -50,7 +51,24 @@ async def main():
 	# 		"diag_name": "VehicleVINNumber",
 	# 	}
 	# )
-	await gps_status_schedule()
+	# await gps_status_schedule()
+	with open("test.json", "r") as f:
+		data = json.load(f)
+	data = [
+		VehicleDID(
+			diag_name = _["info"],
+			parameter_name = data["ecu_network_info"]["info"],
+			frame_id = data["ecu_network_info"]["address"],
+			hex_data = _["read"],
+			data_type = _["type"]
+		)
+		for _ in data["nodes"]
+	]
+	print(len(data))
+	logs = await VehicleLogsController.get_live_logs_v2(vehicle_ids = ["SALEA7BU1L2000179"], dids_list = data, timeout=5)
+
+	with open("test_result.json", "w") as f:
+		json.dump(logs, f, indent=4)
 	# from models import Vehicle
 	# vehicles = Vehicle.objects()
 	# vehicle_ids = [vehicle.vin for vehicle in vehicles]

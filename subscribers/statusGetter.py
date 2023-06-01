@@ -73,13 +73,25 @@ class StatusGetter:
 		# frame_id = "1971"
 		# diag_name = "DiagName"
 
-		success_message = hex_data[:2] == "62"
-		if not success_message:
-			return device_id, None
 		inpt_data = crnt_msg["input_data"]
 		frame_id = str(crnt_msg["frame_id"])
 		diag_name = crnt_msg["diag_name"]
 		parameter_name = crnt_msg.get("parameter_name", "")
+
+		success_message = hex_data[:2] == "62"
+		if not success_message:
+			log_data = {
+				"raw_data": hex_data,
+				"success": str(success_message),
+				"check": None,
+				"input_data": inpt_data,
+				# "did": json_message.get("did"),
+				"decoded_data": "NO DATA",
+				"diag_name": diag_name,
+				"parameter_name": parameter_name,
+				"frame_id": frame_id,
+			}
+			return device_id, log_data
 
 		### End Prototype ###
 		strip_len = len(inpt_data.replace(" ", ""))

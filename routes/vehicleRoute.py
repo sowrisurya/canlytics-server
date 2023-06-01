@@ -15,7 +15,7 @@ vehicleRouter = APIRouter(
 async def get_all_vehicles(num_items: int = 100, page: int = 1):
 	return VehicleController.get_all_vehicles(num_items, page)
 
-@vehicleRouter.delete("/{vehicle_id}", response_model = VehicleObject)
+@vehicleRouter.delete("/{vehicle_id}", response_model = ResponseSchema)
 async def delete_vehicle(vehicle_id: str):
 	if VehicleController.delete_vehicle(vehicle_id):
 		return ResponseSchema(status = 200, message = "Vehicle deleted successfully")

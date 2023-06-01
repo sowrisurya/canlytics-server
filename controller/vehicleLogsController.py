@@ -1,4 +1,4 @@
-from utils import InfluxClient, REDIS_CLIENT
+from utils import InfluxClient, INFLUX_DBNAME
 import datetime
 from models import (
 	Vehicle,
@@ -47,31 +47,34 @@ class VehicleLogsController:
 			timeshift_duration = VehicleLogsController.get_flux_duration((datetime.datetime.utcnow().replace(tzinfo = None) - end_time.replace(tzinfo = None)).total_seconds())
 
 			vehicle = Vehicle.objects(vin = vehicle_id).first()
-			if vehicle:
-				vehicle_dbc = VehicleDBCDids.objects(vehicle = vehicle).first()
-				if vehicle_dbc:
-					influx_client = InfluxClient()
-					query = f"""from(bucket: "vehicleDiagnostic")
+			if not vehicle:
+				return None
+			
+			vehicle_dbc = VehicleDBCDids.objects(vehicle = vehicle).first()
+			if not vehicle_dbc:
+				return None
+			influx_client = InfluxClient()
+			query = f"""from(bucket: "{INFLUX_DBNAME}")
 |> range(start: -{flux_range_time})
 |> timeShift(duration: {timeshift_duration})
 |> filter(fn: (r) => r["_measurement"] == "{vehicle_dbc.device_id}")
 |> group(columns: ["_measurement", "_time"])"""
-					data = [
-						log_measure
-						for table in influx_client.query(query)
-						if (
-							log_measure := {
-								record["_field"]: record["_value"]
-								for record in table
-							}
-						)
-						if (log_measure.update({"time": list(table)[0]["_time"]})) or True
-						if (log_measure.update({"vin": vehicle_id})) or True
-					]
-					return [
-						VehicleLogsObject(**item)
-						for item in data
-					] if data else None
+			data = [
+				log_measure
+				for table in influx_client.query(query)
+				if (
+					log_measure := {
+						record["_field"]: record["_value"]
+						for record in table
+					}
+				)
+				if (log_measure.update({"time": list(table)[0]["_time"]})) or True
+				if (log_measure.update({"vin": vehicle_id})) or True
+			]
+			return [
+				VehicleLogsObject(**item)
+				for item in data
+			] if data else None
 		except Exception as e:
 			logger.error(f"Error: {e}")
 			return None

@@ -17,7 +17,10 @@ async def get_all_vehicles(num_items: int = 100, page: int = 1):
 
 @vehicleRouter.delete("/{vehicle_id}", response_model = VehicleObject)
 async def delete_vehicle(vehicle_id: str):
-	return VehicleController.delete_vehicle(vehicle_id)
+	if VehicleController.delete_vehicle(vehicle_id):
+		return ResponseSchema(status = 200, message = "Vehicle deleted successfully")
+	else:
+		return ResponseSchema(status = 404, message = "Vehicle not found")	
 
 @vehicleRouter.get("/gps", response_model = List[vehicleGPSCoord])
 async def get_all_vehicle_gps_coords(num_items: int = 100, page: int = 1):

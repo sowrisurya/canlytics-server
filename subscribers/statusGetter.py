@@ -53,6 +53,10 @@ class StatusGetter:
 		# logger.info(f"Device ID: {device_id}, GPS: {gps_msg}")
 
 	@staticmethod
+	def add_spaces_hex(hex_data: str):
+		return " ".join([ hex_data[i:i+2] for i in range(0, len(hex_data), 2)])
+
+	@staticmethod
 	def diagonostic_callback(crnt_msg: dict, data: str, add_to_influx: bool = True, data_type: int = 0):
 		if not data.startswith("client_id:") and "|" not in data:
 			return None, None
@@ -81,7 +85,7 @@ class StatusGetter:
 		success_message = hex_data[:2] == "62"
 		if not success_message:
 			log_data = {
-				"raw_data": hex_data,
+				"raw_data": StatusGetter.add_spaces_hex(hex_data),
 				"success": str(success_message),
 				"check": None,
 				"input_data": inpt_data,
@@ -90,6 +94,7 @@ class StatusGetter:
 				"diag_name": diag_name,
 				"parameter_name": parameter_name,
 				"frame_id": frame_id,
+				"received_data": StatusGetter.add_spaces_hex(hex_data)
 			}
 			return device_id, log_data
 
@@ -122,7 +127,7 @@ class StatusGetter:
 		logger.info("--------------\n\n")
 		
 		log_data = {
-			"raw_data": hex_data,
+			"raw_data": StatusGetter.add_spaces_hex(raw_data),
 			"success": str(success_message),
 			"check": check_msg,
 			"input_data": inpt_data,
@@ -131,6 +136,7 @@ class StatusGetter:
 			"diag_name": diag_name,
 			"parameter_name": parameter_name,
 			"frame_id": frame_id,
+			"received_data": StatusGetter.add_spaces_hex(hex_data),
 		}
 		try:
 			if add_to_influx:

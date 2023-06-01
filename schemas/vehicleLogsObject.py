@@ -13,6 +13,7 @@ class VehicleLogsObject(BaseModel):
 	vin: Optional[str] = Field("vin", example = "vin")
 	decoded_data: Optional[str] = Field("NA", example = "decoded_data")
 	input_data: str = Field(..., example = "input_data")
+	received_data: str = Field("NA", example = "received_data")
 
 	# class Config:
 	# 	validate_assignment = True

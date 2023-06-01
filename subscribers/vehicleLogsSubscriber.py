@@ -50,7 +50,7 @@ class VehicleLogsSubscriber:
 		while self.crnt_msg is not None and time.time() - st < self.__timeout:
 			await asyncio.sleep(0.1)
 		if self.__crnt_msg:
-			logger.error("Timeout occured for message: ", self.__crnt_msg)
+			logger.error(f"Timeout occured for message: {self.__crnt_msg}")
 
 	def set_crnt_msg(self, value = None):
 		self.__crnt_msg = value

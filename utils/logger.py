@@ -14,9 +14,6 @@ class Logger:
 		self.file_handler = logging.FileHandler(filename)
 		self.file_handler.setFormatter(self.formatter)
 		self.logger.addHandler(self.file_handler)
-		time_handler = TimedRotatingFileHandler(filename, when = "midnight", interval = 1, backupCount=5)
-		time_handler.setFormatter(self.formatter)
-		self.logger.addHandler(time_handler)
 
 	def debug(self, message):
 		self.logger.debug(message)

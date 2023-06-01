@@ -68,14 +68,12 @@ def vehicle_logs_schedule():
 # @celery_app.task(name = "backgroundTasks.gps_status_schedule")
 # @sync
 async def gps_status_schedule():
-	print("gps_status_schedule")
 	logger.info("gps_status_schedule started")
 
 	def callback(data: str):
 		data = data.lower()
 		if data.startswith("server:"):
 			return
-		print("callback", data)
 		StatusGetter.status_diagonostic_callback(data = data)
 		log_subscriber.set_crnt_msg()
 

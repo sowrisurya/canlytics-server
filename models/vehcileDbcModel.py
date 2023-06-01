@@ -34,6 +34,10 @@ class Vehicle(mongoengine.DynamicDocument):
 	make = mongoengine.ReferenceField(VehicleMake, required = True)
 	meta = {"collection": "vehicles"}
 
+	def pre_save(self):
+		if not self.vin:
+			raise Exception("VIN is required")
+
 class GPSCoord(mongoengine.EmbeddedDocument):
 	lat = mongoengine.FloatField(required = True)
 	lng = mongoengine.FloatField(required = True)

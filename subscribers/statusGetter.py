@@ -122,7 +122,7 @@ class StatusGetter:
 		logger.info("--------------\n\n")
 		
 		log_data = {
-			"raw_data": raw_data,
+			"raw_data": hex_data,
 			"success": str(success_message),
 			"check": check_msg,
 			"input_data": inpt_data,

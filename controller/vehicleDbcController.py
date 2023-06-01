@@ -86,10 +86,11 @@ class VehicleDbcController:
 					data = message,
 					add_to_influx = False
 				)
-				# log_subscriber.set_crnt_msg()
+				log_subscriber.set_crnt_msg()
 				if log_data and isinstance(log_data, dict) and log_data.get("diag_name", None) == "Vehicle VIN":
-					vehicle.chipId = device_id
-					vehicle.save()
+					Vehicle.objects(vin = vehicle_id).update(
+						set__chipId = device_id
+					)
 					vehicle_dbc.device_id = device_id
 					vehicle_dbc.save()
 			log_subscriber = VehicleLogsSubscriber(
@@ -97,6 +98,7 @@ class VehicleDbcController:
 				dids_list = [],
 				add_to_influx = False,
 				callback = callback,
+				timeout = 5,
 			)
 			log_subscriber.publish(
 				diag_name = "Vehicle VIN",
@@ -126,8 +128,8 @@ class VehicleDbcController:
 			# except Exception as e:
 			# 	logger.error(f"Error: {e}")
 			# await task
-			gps_status_schedule.apply_async()
 
+			await gps_status_schedule()
 			return vehicle.chipId
 			### End of prototype
 		except Exception as e:

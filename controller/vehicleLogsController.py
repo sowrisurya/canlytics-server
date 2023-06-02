@@ -18,33 +18,12 @@ logger = Logger(__name__)
 class VehicleLogsController:
 
 	@staticmethod
-	def get_flux_duration(num):
-		flux_range_time = ""
-		if num / 60 >= 0:
-			flux_range_time = f"{int(num%60)}s"
-			num = num // 60
-		if num / 60 > 0:
-			flux_range_time = f"{int(num%60)}m" + flux_range_time
-			num = num // 60
-		if num / 24 > 0:
-			flux_range_time = f"{int(num%24)}h" + flux_range_time
-			num = num // 24
-		if num > 0:
-			flux_range_time = f"{int(num)}d" + flux_range_time
-		return flux_range_time
-
-	@staticmethod
-	def get_vehicle_logs(vehicle_id, start_time = None, end_time = None, did = None, limit = None):
+	def get_vehicle_logs(vehicle_id, start_time = None, end_time = None, page = 1, limit = 10):
 		try:
 			if not end_time:
 				end_time = datetime.datetime.utcnow()
 			if not start_time:
 				start_time = end_time - datetime.timedelta(days = 1)
-			if end_time.replace(tzinfo = None) > datetime.datetime.utcnow().replace(tzinfo = None):
-				end_time = datetime.datetime.utcnow()
-
-			flux_range_time = VehicleLogsController.get_flux_duration((end_time.replace(tzinfo = None) - start_time.replace(tzinfo = None)).total_seconds())
-			timeshift_duration = VehicleLogsController.get_flux_duration((datetime.datetime.utcnow().replace(tzinfo = None) - end_time.replace(tzinfo = None)).total_seconds())
 
 			vehicle = Vehicle.objects(vin = vehicle_id).first()
 			if not vehicle:
@@ -55,26 +34,59 @@ class VehicleLogsController:
 				return None
 			influx_client = InfluxClient()
 			query = f"""from(bucket: "{INFLUX_DBNAME}")
-|> range(start: -{flux_range_time})
-|> timeShift(duration: {timeshift_duration})
+|> range(start: {start_time.strftime("%Y-%m-%dT%H:%M:%SZ")}, stop: {end_time.strftime("%Y-%m-%dT%H:%M:%SZ")})
 |> filter(fn: (r) => r["_measurement"] == "{vehicle_dbc.device_id}")
-|> group(columns: ["_measurement", "_time"])"""
-			data = [
-				log_measure
-				for table in influx_client.query(query)
-				if (
-					log_measure := {
-						record["_field"]: record["_value"]
-						for record in table
-					}
-				)
-				if (log_measure.update({"time": list(table)[0]["_time"]})) or True
-				if (log_measure.update({"vin": vehicle_id})) or True
-			]
+|> sort(columns: ["_time"], desc: true)
+|> limit(n: {page*limit})
+"""
+			add_data = {
+				"check": [],
+				"decoded_data": [],
+				"diag_name": [],
+				"frame_id": [],
+				"input_data": [],
+				"parameter_name": [],
+				"raw_data": [],
+				"received_data": [],
+				"success": [],
+				"time": [],
+				"vin": [],
+			}
+			for _ in influx_client.query(query):
+				for __ in _:
+					add_data[__["_field"]].append(__["_value"])
+					if len(add_data["time"]) != len(list(_)):
+						add_data["time"].append(__["_time"])
+						add_data["vin"].append(vehicle_id)
+
 			return [
-				VehicleLogsObject(**item)
-				for item in data
-			] if data else None
+				VehicleLogsObject(
+					check = ch,
+					decoded_data = dd,
+					diag_name = dn,
+					frame_id = fi,
+					input_data = id,
+					parameter_name = pn,
+					raw_data = rd,
+					received_data = rcvd,
+					success = sc,
+					time = t,
+					vin = v,
+				)
+				for ch, dd, dn, fi, id, pn, rd, rcvd, sc, t, v in zip(
+					add_data["check"],
+					add_data["decoded_data"],
+					add_data["diag_name"],
+					add_data["frame_id"],
+					add_data["input_data"],
+					add_data["parameter_name"],
+					add_data["raw_data"],
+					add_data["received_data"],
+					add_data["success"],
+					add_data["time"],
+					add_data["vin"],
+				)
+			]
 		except Exception as e:
 			logger.error(f"Error: {e}")
 			return None

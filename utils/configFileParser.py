@@ -53,7 +53,7 @@ def parseConfigFile(config: List[str]):
 				did_data = {}
 				start_line += 1
 				continue
-			elif line.startswith("\t"):
+			elif line.startswith("\t") or line.startswith("    "):
 				if " = " in line or "\t= " in line or " =\t" in line or "\t=\t" in line:
 					param, info = line.split(" = ") if " = " in line else (
 						line.split("\t= ") if "\t= " in line else (

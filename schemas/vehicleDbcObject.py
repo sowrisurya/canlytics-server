@@ -37,6 +37,10 @@ class VehicleDID(BaseModel):
 	# 	elif isinstance(frame_id, int):
 	# 		return hex(frame_id)[2:]
 
+class VehicleECUDID(BaseModel):
+	frame_id: str = Field(..., example = "frame_id")
+	name: str = Field(..., example = "name")
+
 class VehicleModelDIDs(BaseModel):
 	model_id: str = Form(..., example = "model_id")
 	model_name: str = Form(..., example = "model_name")

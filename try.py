@@ -8,6 +8,7 @@ from controller.vehicleDbcController import VehicleDbcController
 from controller.vehicleLogsController import VehicleLogsController
 from utils.influxClient import InfluxClient
 import time, asyncio, json
+from subscribers.snapshotSubscriber import SnapShotSubscriber
 from utils import REDIS_CLIENT
 from subscribers.statusGetter import StatusGetter
 from subscribers.dataAdderQueue import DataAdderQueue
@@ -52,23 +53,37 @@ async def main():
 	# 	}
 	# )
 	# await gps_status_schedule()
-	with open("test.json", "r") as f:
-		data = json.load(f)
-	data = [
-		VehicleDID(
-			diag_name = _["info"],
-			parameter_name = data["ecu_network_info"]["info"],
-			frame_id = data["ecu_network_info"]["address"],
-			hex_data = _["read"],
-			data_type = _["type"]
-		)
-		for _ in data["nodes"]
-	]
-	print(len(data))
-	logs = await VehicleLogsController.get_live_logs_v2(vehicle_ids = ["SALEA7BU1L2000179"], dids_list = data, timeout=5)
+	# with open("test.json", "r") as f:
+	# 	data = json.load(f)
+	# data = [
+	# 	VehicleDID(
+	# 		diag_name = _["info"],
+	# 		parameter_name = data["ecu_network_info"]["info"],
+	# 		frame_id = data["ecu_network_info"]["address"],
+	# 		hex_data = _["read"],
+	# 		data_type = _["type"]
+	# 	)
+	# 	for _ in data["nodes"]
+	# ]
+	# print(len(data))
+	# logs = await VehicleLogsController.get_live_logs_v2(vehicle_ids = ["SALEA7BU1L2000179"], dids_list = data, timeout=5)
 
-	with open("test_result.json", "w") as f:
-		json.dump(logs, f, indent=4)
+	# with open("test_result.json", "w") as f:
+	# 	json.dump(logs, f, indent=4)
+	
+	sss = SnapShotSubscriber(device_id = "simcom_client01")
+	# odo_read = await sss.read_odo_reading()
+	# print(odo_read)
+	# dtc_read = await sss.read_dtc_info(dtc_did = "716 19 02 AF")
+	# print(dtc_read)
+	print(await sss.take_snapshot(dids = [
+		{
+			"frame_id": "716",
+			"name": "Gateway Module",
+		}
+	]))
+	# print(sss.parse_dtc_msg("5902FF509383AF"))
+	sss.stop()
 	# from models import Vehicle
 	# vehicles = Vehicle.objects()
 	# vehicle_ids = [vehicle.vin for vehicle in vehicles]

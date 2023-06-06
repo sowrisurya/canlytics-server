@@ -12,6 +12,7 @@ from backgroundTasks.vehicleLogsTask import wait_for_data_async
 from subscribers import StatusGetter
 from utils import Logger
 from subscribers.vehicleLogsSubscriber import VehicleLogsSubscriber
+from subscribers.snapshotSubscriber import SnapShotSubscriber
 
 logger = Logger(__name__)
 
@@ -163,3 +164,25 @@ class VehicleLogsController:
 			for device_id in vehicle_logs_data
 			for item in vehicle_logs_data[device_id]["logs"]
 		]
+	
+	@staticmethod
+	async def get_vehicle_snapshot(vehicle_ids, dids_list):
+		ret_data = []
+		for vehicle_id in vehicle_ids:
+			vehicle = Vehicle.objects(vin = vehicle_id).first()
+			if not vehicle:
+				return None
+			vehicle_dbc = VehicleDBCDids.objects(vehicle = vehicle).first()
+			if not vehicle_dbc:
+				return None
+			vss = SnapShotSubscriber(device_id = vehicle_dbc.device_id)
+			read_time = datetime.datetime.now()
+			ecu_logs, dtc_data, odo_read = await vss.take_snapshot(dids = dids_list)
+			ret_data.append({
+				"vin": vehicle_id,
+				"read_time": read_time,
+				"odo_read": odo_read,
+				"ecu_logs": ecu_logs,
+				"dtc": dtc_data,
+			})
+		return ret_data

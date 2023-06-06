@@ -54,6 +54,7 @@ class StatusGetter:
 
 	@staticmethod
 	def add_spaces_hex(hex_data: str):
+		hex_data = hex_data.replace(" ", "")
 		return " ".join([ hex_data[i:i+2] for i in range(0, len(hex_data), 2)])
 
 	@staticmethod

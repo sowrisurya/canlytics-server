@@ -1,6 +1,7 @@
 from schemas.vehicleDbcObject import (
     VehicleModelDIDs,
-    VehicleDID
+    VehicleDID,
+    VehicleECUDID,
 )
 from schemas.dbcObject import (
     CANFrame,
@@ -19,5 +20,10 @@ from schemas.common import (
 )
 from schemas.vehicleObject import (
     VehicleObject,
+)
+from schemas.dtcObject import (
+    DTCData,
+    ECUDTCInfo,
+    VehicleDTCSnapShot,
 )
 from typing import List, Optional

@@ -4,13 +4,14 @@ from pydantic import BaseModel, Field, validator
 import datetime
 
 class VehicleLogsObject(BaseModel):
-	time: datetime.datetime = Field(..., example = "time")
+	# time: datetime.datetime = Field(..., example = "time")
 	raw_data: str = Field(..., example = "raw_data")
 	# did: str = Field(..., example = "did")
-	diag_name: Optional[str] = Field("DiagName", example = "diag_name")
+	parameter_name: Optional[str] = Field("Parameter Name", example = "parameter_name")
+	diag_name: Optional[str] = Field("Diag Name", example = "diag_name")
 	frame_id: Union[int, str] = Field(..., example = "frame_id")
 	# start_bit: int = Field(..., example = "start_bit")
-	vin: Optional[str] = Field("vin", example = "vin")
+	# vin: Optional[str] = Field("vin", example = "vin")
 	decoded_data: Optional[str] = Field("NA", example = "decoded_data")
 	input_data: str = Field(..., example = "input_data")
 	received_data: str = Field("NA", example = "received_data")

@@ -45,7 +45,7 @@ class SnapShotSubscriber:
 		return crnt_msg
 
 	async def publish(self, msg, resp_msgs = 1):
-		with self.__redis_client.lock(f"publish_msg_{self.__device_id}", sleep = 0.01):
+		with self.__redis_client.lock(f"publish_msg_{self.__device_id}", sleep = 0.01, timeout = 10):
 			self.__mqtt_client.publish(msg)
 			self.__crnt_msg = msg
 			crnt_msg = await self.wait(tot_msgs = resp_msgs)

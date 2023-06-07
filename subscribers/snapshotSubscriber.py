@@ -18,6 +18,8 @@ class SnapShotSubscriber:
 		self.__crnt_msg = None
 		self.__device_id = device_id
 		self.__resp_msg = []
+		self.__max_retries = 3
+		self.__num__retries = 0
 
 	def msg_callback(self, msg):
 		msg = msg.lower()
@@ -40,6 +42,8 @@ class SnapShotSubscriber:
 		st = time.time()
 		while len(self.__resp_msg) < tot_msgs and (time.time() - st < timeout):
 			await asyncio.sleep(1)
+		if len(self.__resp_msg) == 0:
+			self.__num__retries += 1
 		crnt_msg = self.__crnt_msg
 		self.__crnt_msg = None
 		return crnt_msg
@@ -104,14 +108,14 @@ class SnapShotSubscriber:
 			dtc_info = self.__resp_msg
 			self.__resp_msg = []
 			if len(dtc_info) == 0:
-				return None
+				continue
 			did_dtcs.append({
 				"ecu_name": dtc_did.name,
 				"did": dtc_did.frame_id,
 				"messages": self.parse_dtc_msgs(dtc_info)
 			})
 		return did_dtcs
-	
+
 	def decode_message(self, read_data, msg, type = 0):
 		if msg[:2] != "62":
 			return msg, None
@@ -133,7 +137,10 @@ class SnapShotSubscriber:
 	async def read_ecu_dids(self, dids):
 		logs_messages = []
 		for ecu_did in dids:
+			self.__num__retries = 0
 			for param in READ_PARAMS:
+				if self.__num__retries >= self.__max_retries:
+					break
 				raad_param = param['read'].replace(" ", "")
 				crnt_msg = await self.publish(f"server>{self.__device_id} {ecu_did.frame_id} {param['read']}<")
 				if len(self.__resp_msg) == 0:

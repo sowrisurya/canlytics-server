@@ -3,8 +3,8 @@ from typing import List
 from schemas import (
     VehicleLogsObject,
     VehicleDID,
-    VehicleDTCSnapShot,
     VehicleECUDID,
+    VehicleDTCSnapShot
 )
 import datetime
 from controller.vehicleLogsController import VehicleLogsController

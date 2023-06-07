@@ -183,6 +183,6 @@ class VehicleLogsController:
 				"read_time": read_time,
 				"odo_read": odo_read,
 				"ecu_logs": ecu_logs,
-				"dtc": dtc_data,
+				# "dtc": dtc_data,
 			})
 		return ret_data

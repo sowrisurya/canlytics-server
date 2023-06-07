@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 from pydantic import BaseModel, Field, validator
-from .vehicleLogsObject import VehicleLogsObject
+# from .vehicleLogsObject import VehicleLogsObject
 import datetime
 
 class DTCData(BaseModel):
@@ -14,9 +14,3 @@ class ECUDTCInfo(BaseModel):
     did: str
     messages: List[DTCData]
     
-class VehicleDTCSnapShot(BaseModel):
-    dtc: List[ECUDTCInfo]
-    ecu_logs: List[VehicleLogsObject]
-    odo_read: int
-    read_time: datetime.datetime
-    vin: str

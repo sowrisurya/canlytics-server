@@ -14,6 +14,7 @@ from schemas.dbcObject import (
 )
 from schemas.vehicleLogsObject import (
     VehicleLogsObject,
+    VehicleDTCSnapShot,
 )
 from schemas.common import (
     ResponseSchema
@@ -24,6 +25,5 @@ from schemas.vehicleObject import (
 from schemas.dtcObject import (
     DTCData,
     ECUDTCInfo,
-    VehicleDTCSnapShot,
 )
 from typing import List, Optional

@@ -114,21 +114,21 @@ class SnapShotSubscriber:
 	
 	def decode_message(self, read_data, msg, type = 0):
 		if msg[:2] != "62":
-			return None
+			return msg, None
 		msg = msg[len(read_data):]
 		if len(msg) == 0:
-			return None
+			return msg, None
 		if type == 0:
 			try:
 				decoded_data = bytes.fromhex(msg).decode()
 				decoded_data = decoded_data.replace("\x00", "")
 				decoded_data = decoded_data.replace("\\x", "")
-				return decoded_data
+				return msg, decoded_data
 			except Exception as e:
 				print(e)
-				return "Decode Error"
+				return msg, "Decode Error"
 		elif type == 3:
-			return "Data Not Processed"
+			return msg, "Data Not Processed"
 
 	async def read_ecu_dids(self, dids):
 		logs_messages = []
@@ -143,13 +143,13 @@ class SnapShotSubscriber:
 				if len(msgs) == 0:
 					continue
 				dec_msg = msgs[0]
-				decoded_data = self.decode_message(raad_param, dec_msg)
+				raw_data, decoded_data = self.decode_message(raad_param, dec_msg)
 				success = True
 				if decoded_data is None:
 					decoded_data = "Negative Response"
 					success = False
 				logs_messages.append({
-					"raw_data": StatusGetter.add_spaces_hex(dec_msg),
+					"raw_data": raw_data,
 					"success": str(success),
 					"check": dec_msg[2:len(raad_param)] if len(dec_msg) >= len(raad_param) else "",
 					"input_data": StatusGetter.add_spaces_hex(param["read"]),
@@ -165,6 +165,19 @@ class SnapShotSubscriber:
 	async def take_snapshot(self, dids):
 		dtc_data = await self.read_dtc_info(dids)
 		logs = await self.read_ecu_dids(dids)
+		for did_dtc in dtc_data:
+			logs.append({
+				"raw_data": "",
+				"success": "True",
+				"check": "",
+				"input_data": "19 02 AF",
+				"decoded_data": "",
+				"dtc_data": did_dtc["messages"],
+				"diag_name": f"DTC Read {did_dtc['ecu_name']}",
+				"parameter_name": "DTC",
+				"frame_id": did_dtc["did"],
+				"received_data": "",
+			})
 		odo_read = await self.read_odo_reading()
 		return logs, dtc_data, odo_read
 

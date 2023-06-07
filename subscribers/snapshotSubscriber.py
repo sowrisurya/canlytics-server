@@ -44,6 +44,8 @@ class SnapShotSubscriber:
 			await asyncio.sleep(1)
 		if len(self.__resp_msg) == 0:
 			self.__num__retries += 1
+		elif len(self.__resp_msg) > 0:
+			self.__num__retries = 0
 		crnt_msg = self.__crnt_msg
 		self.__crnt_msg = None
 		return crnt_msg

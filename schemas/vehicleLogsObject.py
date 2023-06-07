@@ -29,6 +29,6 @@ class VehicleLogsObject(BaseModel):
 class VehicleDTCSnapShot(BaseModel):
     # dtc: List[ECUDTCInfo]
     ecu_logs: List[VehicleLogsObject]
-    odo_read: int
+    odo_read: int | None
     read_time: datetime.datetime
     vin: str

@@ -59,6 +59,8 @@ class SnapShotSubscriber:
 
 	async def read_odo_reading(self):
 		crnt_msg = await self.publish(f"server>{self.__device_id} 716 22 DD 01<")
+		if len(self.__resp_msg) == 0:
+			return None
 		odo_reading = self.__resp_msg[0]
 		self.__resp_msg = []
 		if odo_reading is None:
